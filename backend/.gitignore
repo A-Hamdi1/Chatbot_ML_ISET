@@ -1,0 +1,66 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+venv/
+env/
+ENV/
+*.env
+*.venv
+
+# VS Code settings
+.vscode/
+.settings/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Python test / coverage
+.coverage
+.cache/
+.pytest_cache/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+
+# Jupyter Notebook checkpoints (if used)
+.ipynb_checkpoints/
+
+# Model and data artifacts
+models/
+*.h5
+*.pkl
+*.joblib
+*.pt
+*.onnx
+
+# # Local data and indexing folders
+# # Ignore everything in the data folder
+# data/*
+
+# # Except data.json
+# !data/data.json
+indexdir/
+
+
+# Flask instance folder or config
+instance/
+
+# Ignore environment-specific files
+.env
+*.env
+
+
+.pdf
+*.pdf
+
+data/**
