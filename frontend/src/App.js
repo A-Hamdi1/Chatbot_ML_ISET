@@ -1,3 +1,4 @@
+// App.js
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -8,6 +9,7 @@ import MetricsPage from './pages/MetricsPage';
 import AboutPage from './pages/AboutPage';
 import EmbeddingsMetricsPage from './pages/EmbeddingsMetricsPage';
 import Sidebar from './components/Sidebar';
+import ErrorBoundary from './components/ErrorBoundary'; // Ajout
 import axios from 'axios';
 
 function App() {
@@ -21,10 +23,10 @@ function App() {
 
   const fetchChatSessions = () => {
     axios.get('http://localhost:5000/get_sessions')
-      .then(response => {
+      .then((response) => {
         setSessions(response.data.sort((a, b) => new Date(b.date) - new Date(a.date)));
       })
-      .catch(error => console.error('Error fetching sessions:', error));
+      .catch((error) => console.error('Error fetching sessions:', error));
   };
 
   const toggleDrawer = () => {
@@ -144,7 +146,14 @@ function App() {
           <div style={{ flexGrow: 1, padding: '16px', marginTop: '64px' }}>
             <Routes>
               <Route path="/" element={<ChatPage sessions={sessions} setSessions={setSessions} />} />
-              <Route path="/metrics" element={<MetricsPage />} />
+              <Route
+                path="/metrics"
+                element={
+                  <ErrorBoundary>
+                    <MetricsPage />
+                  </ErrorBoundary>
+                }
+              />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/embeddings-metrics" element={<EmbeddingsMetricsPage />} />
             </Routes>
