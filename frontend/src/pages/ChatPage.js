@@ -4,7 +4,7 @@ import { Send, ThumbUp, ThumbDown, ContentCopy } from '@mui/icons-material';
 import Slide from '@mui/material/Slide';
 import axios from 'axios';
 
-function ChatPage() {
+function ChatPage({ sessions, setSessions }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [sessionId, setSessionId] = useState(new URLSearchParams(window.location.search).get('session_id'));
@@ -14,14 +14,25 @@ function ChatPage() {
 
   useEffect(() => {
     if (sessionId) {
-      axios.get('http://localhost:5000/get_sessions')
-        .then(response => {
-          const session = response.data.find(s => s.id === sessionId);
-          if (session) setMessages(session.messages);
-        })
-        .catch(error => console.error('Error fetching session:', error));
+      const session = sessions.find(s => s.id === parseInt(sessionId));
+      if (session) {
+        setMessages(session.messages);
+      } else {
+        // Fetch session if not in local state (e.g., page refresh)
+        axios.get('http://localhost:5000/get_sessions')
+          .then(response => {
+            const session = response.data.find(s => s.id === parseInt(sessionId));
+            if (session) {
+              setMessages(session.messages);
+              setSessions(response.data.sort((a, b) => new Date(b.date) - new Date(a.date)));
+            }
+          })
+          .catch(error => console.error('Error fetching session:', error));
+      }
+    } else {
+      setMessages([]);
     }
-  }, [sessionId]);
+  }, [sessionId, sessions, setSessions]);
 
   useEffect(() => {
     chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
@@ -37,8 +48,19 @@ function ChatPage() {
         message: input,
         session_id: sessionId
       });
-      setMessages([...messages, response.data.chat_entry]);
+      const updatedMessages = [...messages, response.data.chat_entry];
+      setMessages(updatedMessages);
       setSessionId(response.data.session_id);
+
+      // Update sessions with the new message
+      setSessions(prevSessions => {
+        const updatedSessions = prevSessions.map(session =>
+          session.id === response.data.session_id
+            ? { ...session, messages: updatedMessages }
+            : session
+        );
+        return updatedSessions;
+      });
     } catch (error) {
       console.error('Error sending message:', error);
       setSnackbarMessage('Erreur lors de l\'envoi du message');

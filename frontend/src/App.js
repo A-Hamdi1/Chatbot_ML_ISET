@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, AppBar, Toolbar, Typography, IconButton, Switch } from '@mui/material';
@@ -8,10 +8,24 @@ import MetricsPage from './pages/MetricsPage';
 import AboutPage from './pages/AboutPage';
 import EmbeddingsMetricsPage from './pages/EmbeddingsMetricsPage';
 import Sidebar from './components/Sidebar';
+import axios from 'axios';
 
 function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [mode, setMode] = useState('dark'); // Default to dark mode
+  const [mode, setMode] = useState('dark');
+  const [sessions, setSessions] = useState([]);
+
+  useEffect(() => {
+    fetchChatSessions();
+  }, []);
+
+  const fetchChatSessions = () => {
+    axios.get('http://localhost:5000/get_sessions')
+      .then(response => {
+        setSessions(response.data.sort((a, b) => new Date(b.date) - new Date(a.date)));
+      })
+      .catch(error => console.error('Error fetching sessions:', error));
+  };
 
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
@@ -21,13 +35,12 @@ function App() {
     setMode((prevMode) => (prevMode === 'light' ? 'dark' : 'light'));
   };
 
-  // Create a Material Design 3 theme with the new color palette
   const theme = createTheme({
     palette: {
       mode: mode,
-      primary: { main: '#26A69A' }, // Teal
-      secondary: { main: '#FF6F61' }, // Coral
-      tertiary: { main: '#D4E157' }, // Lime
+      primary: { main: '#26A69A' },
+      secondary: { main: '#FF6F61' },
+      tertiary: { main: '#D4E157' },
       background: {
         default: mode === 'light' ? '#F5F5F5' : '#1A1A1A',
         paper: mode === 'light' ? '#FFFFFF' : '#2D2D2D',
@@ -121,10 +134,16 @@ function App() {
           </Toolbar>
         </AppBar>
         <div style={{ display: 'flex' }}>
-          <Sidebar open={drawerOpen} toggleDrawer={toggleDrawer} />
+          <Sidebar
+            open={drawerOpen}
+            toggleDrawer={toggleDrawer}
+            sessions={sessions}
+            setSessions={setSessions}
+            fetchChatSessions={fetchChatSessions}
+          />
           <div style={{ flexGrow: 1, padding: '16px', marginTop: '64px' }}>
             <Routes>
-              <Route path="/" element={<ChatPage />} />
+              <Route path="/" element={<ChatPage sessions={sessions} setSessions={setSessions} />} />
               <Route path="/metrics" element={<MetricsPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/embeddings-metrics" element={<EmbeddingsMetricsPage />} />

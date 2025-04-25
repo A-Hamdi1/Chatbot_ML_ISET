@@ -1,36 +1,32 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, Divider, IconButton, Snackbar, Dialog, DialogTitle, DialogContent, DialogActions, Button } from '@mui/material';
 import { BarChart, Info, Add, Share, Delete, Compare } from '@mui/icons-material';
 import Slide from '@mui/material/Slide';
 import Fade from '@mui/material/Fade';
 import axios from 'axios';
 
-function Sidebar({ open, toggleDrawer }) {
-  const [sessions, setSessions] = useState([]);
+function Sidebar({ open, toggleDrawer, sessions, setSessions, fetchChatSessions }) {
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [sessionToDelete, setSessionToDelete] = useState(null);
 
-  useEffect(() => {
-    fetchChatSessions();
-  }, []);
-
-  const fetchChatSessions = () => {
-    axios.get('http://localhost:5000/get_sessions')
-      .then(response => {
-        setSessions(response.data.sort((a, b) => new Date(b.date) - new Date(a.date)));
-      })
-      .catch(error => console.error('Error fetching sessions:', error));
-  };
-
   const startNewChat = () => {
     axios.post('http://localhost:5000/new_chat')
       .then(response => {
+        const newSession = {
+          id: response.data.session_id,
+          date: new Date().toISOString(),
+          messages: []
+        };
+        setSessions([newSession, ...sessions]);
         window.location.href = `/?session_id=${response.data.session_id}`;
-        fetchChatSessions();
       })
-      .catch(error => console.error('Error starting new chat:', error));
+      .catch(error => {
+        console.error('Error starting new chat:', error);
+        setSnackbarMessage('Erreur lors de la création du chat');
+        setSnackbarOpen(true);
+      });
   };
 
   const deleteChat = (sessionId) => {
@@ -38,11 +34,15 @@ function Sidebar({ open, toggleDrawer }) {
       .then(() => {
         setSessions(sessions.filter(session => session.id !== sessionId));
         const currentSessionId = new URLSearchParams(window.location.search).get('session_id');
-        if (currentSessionId === sessionId) {
+        if (currentSessionId && parseInt(currentSessionId) === sessionId) {
           window.location.href = '/';
         }
       })
-      .catch(error => console.error('Error deleting chat:', error));
+      .catch(error => {
+        console.error('Error deleting chat:', error);
+        setSnackbarMessage('Erreur lors de la suppression du chat');
+        setSnackbarOpen(true);
+      });
   };
 
   const handleDeleteClick = (sessionId) => {
@@ -167,7 +167,7 @@ function Sidebar({ open, toggleDrawer }) {
         TransitionComponent={Slide}
         sx={{
           '& .MuiSnackbarContent-root': {
-            backgroundColor: 'primary.main',
+            backgroundColor: snackbarMessage.startsWith('Erreur') ? 'error.main' : 'primary.main',
             color: 'white',
             borderRadius: '8px',
           },
