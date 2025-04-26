@@ -1,4 +1,4 @@
-import json
+import pandas as pd
 import nltk
 import string
 import numpy as np
@@ -6,7 +6,6 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import SnowballStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
-from langdetect import detect
 from whoosh.index import create_in
 from whoosh.fields import Schema, TEXT
 import os
@@ -28,25 +27,38 @@ ix = create_in("indexdir", schema)
 
 def load_data():
     try:
-        with open('data/data.json', 'r', encoding='utf-8') as file:
-            data = json.load(file)
+        # Charger le dataset CSV
+        data = pd.read_csv('data/iset_dataset.csv', encoding='utf-8')
         questions = []
         responses = []
         urls = []
         categories = []
         writer = ix.writer()
-        for entry in data:
-            writer.add_document(question=entry['question'], answer=entry['answer'], url=entry['url'])
-            main_question = entry['question']
-            variations = entry['question_variations']
-            questions.extend([main_question] + variations)
-            responses.extend([entry['answer']] * (len(variations) + 1))
-            urls.extend([entry['url']] * (len(variations) + 1))
-            categories.extend([entry['category']] * (len(variations) + 1))
+        
+        # Générer des URLs par défaut basées sur la catégorie
+        default_urls = {
+            "Course Information": "/programmes",
+            "Registration": "/admissions/procedure-inscription",
+            "Student Life": "/services/etudiants",
+            # Ajouter d'autres catégories si nécessaire
+        }
+        
+        for _, row in data.iterrows():
+            question = row['question']
+            answer = row['answer']
+            category = row['category']
+            # Utiliser l'URL par défaut si aucune URL n'est fournie
+            url = default_urls.get(category, "/")
+            writer.add_document(question=question, answer=answer, url=url)
+            questions.append(question)
+            responses.append(answer)
+            urls.append(url)
+            categories.append(category)
+        
         writer.commit()
         return questions, responses, urls, categories
     except FileNotFoundError:
-        print("Error: data_v5.json not found.")
+        print("Error: iset_dataset.csv not found.")
         return [], [], [], []
     except Exception as e:
         print(f"Error loading data: {e}")
@@ -54,23 +66,19 @@ def load_data():
 
 questions, responses, urls, categories = load_data()
 
-def preprocess_text(text):
-    try:
-        lang = detect(text)
-    except:
-        lang = 'fr'
-    stemmer = stemmer_en if lang == 'en' else stemmer_fr
-    stop_words = stop_words_en if lang == 'en' else stop_words_fr
+def preprocess_text(text, language='fr'):
+    stemmer = stemmer_en if language == 'en' else stemmer_fr
+    stop_words = stop_words_en if language == 'en' else stop_words_fr
     text = text.lower().translate(str.maketrans('', '', string.punctuation))
     tokens = [stemmer.stem(word) for word in word_tokenize(text) if word not in stop_words]
     return ' '.join(tokens)
 
 # Tokenized texts for word embeddings
-tokenized_questions = [preprocess_text(q).split() for q in questions]
+tokenized_questions = [preprocess_text(q, lang).split() for q, lang in zip(questions, [row['language'] for _, row in pd.read_csv('data/iset_dataset.csv').iterrows()])]
 
 # Vectorizer for TF-IDF
 vectorizer = TfidfVectorizer(ngram_range=(1, 2), max_df=0.9, min_df=2)
-processed_questions = [preprocess_text(q) for q in questions]
+processed_questions = [preprocess_text(q, lang) for q, lang in zip(questions, [row['language'] for _, row in pd.read_csv('data/iset_dataset.csv').iterrows()])]
 tfidf_matrix = vectorizer.fit_transform(processed_questions)
 
 # Train Word2Vec model
@@ -91,20 +99,20 @@ else:
     fasttext_model = FastText(tokenized_questions, vector_size=100, window=5, min_count=1, workers=4)
     fasttext_model.save(fasttext_model_path)
 
-def get_document_vector_w2v(doc, model):
-    words = preprocess_text(doc).split()
+def get_document_vector_w2v(doc, model, language='fr'):
+    words = preprocess_text(doc, language).split()
     word_vectors = [model.wv[word] for word in words if word in model.wv]
     if len(word_vectors) == 0:
         return np.zeros(model.vector_size)
     return np.mean(word_vectors, axis=0)
 
-def get_document_vector_fasttext(doc, model):
-    words = preprocess_text(doc).split()
+def get_document_vector_fasttext(doc, model, language='fr'):
+    words = preprocess_text(doc, language).split()
     word_vectors = [model.wv[word] for word in words if word in model.wv]
     if len(word_vectors) == 0:
         return np.zeros(model.vector_size)
     return np.mean(word_vectors, axis=0)
 
 # Pre-calculate document vectors
-w2v_question_vectors = np.array([get_document_vector_w2v(q, word2vec_model) for q in questions])
-fasttext_question_vectors = np.array([get_document_vector_fasttext(q, fasttext_model) for q in questions])
+w2v_question_vectors = np.array([get_document_vector_w2v(q, word2vec_model, lang) for q, lang in zip(questions, [row['language'] for _, row in pd.read_csv('data/iset_dataset.csv').iterrows()])])
+fasttext_question_vectors = np.array([get_document_vector_fasttext(q, fasttext_model, lang) for q, lang in zip(questions, [row['language'] for _, row in pd.read_csv('data/iset_dataset.csv').iterrows()])])

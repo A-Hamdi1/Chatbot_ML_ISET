@@ -8,20 +8,43 @@ from chatbot.embeddings_utils import ensemble_similarity, get_best_match_with_fa
 from chatbot.models import nb_classifier, knn_classifier, nb_score, nb_f1, best_knn_score, best_knn_f1, best_n_neighbors
 from chatbot.chatbot_logic import get_response, save_new_question, search_in_index
 from sklearn.metrics.pairwise import cosine_similarity
-import json
+import pandas as pd
 import datetime
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for React frontend
 
 # File to store chat sessions persistently
-CHAT_FILE = "data/chat_sessions.json"
+CHAT_FILE = "data/chat_sessions.csv"
 
 def load_chat_sessions():
     try:
         if os.path.exists(CHAT_FILE):
-            with open(CHAT_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
+            df = pd.read_csv(CHAT_FILE, encoding='utf-8')
+            # Regrouper par session_id pour reconstruire les sessions
+            sessions = []
+            for session_id, group in df.groupby('session_id'):
+                messages = []
+                for _, row in group.iterrows():
+                    bot_response = {
+                        "answer": row['bot_answer'],
+                        "url": row['bot_url'],
+                        "similarity": row['bot_similarity'],
+                        "category": row['bot_category'],
+                        "is_shortcut": row['bot_is_shortcut'] == 'True',
+                        "method": row['bot_method']
+                    }
+                    messages.append({
+                        "user": row['user_message'],
+                        "bot": bot_response,
+                        "timestamp": row['timestamp']
+                    })
+                sessions.append({
+                    "id": session_id,
+                    "date": group['date'].iloc[0],
+                    "messages": messages
+                })
+            return sessions
         return []
     except Exception as e:
         print(f"Error loading chat sessions: {e}")
@@ -30,8 +53,25 @@ def load_chat_sessions():
 def save_chat_sessions(sessions):
     try:
         os.makedirs(os.path.dirname(CHAT_FILE), exist_ok=True)
-        with open(CHAT_FILE, 'w', encoding='utf-8') as f:
-            json.dump(sessions, f, indent=4, ensure_ascii=False)
+        # Aplatir les sessions en un DataFrame
+        rows = []
+        for session in sessions:
+            for msg in session['messages']:
+                row = {
+                    "session_id": session['id'],
+                    "date": session['date'],
+                    "user_message": msg['user'],
+                    "bot_answer": msg['bot']['answer'] if msg['bot'] else None,
+                    "bot_url": msg['bot']['url'] if msg['bot'] else None,
+                    "bot_similarity": msg['bot']['similarity'] if msg['bot'] else None,
+                    "bot_category": msg['bot']['category'] if msg['bot'] else None,
+                    "bot_is_shortcut": str(msg['bot']['is_shortcut']) if msg['bot'] else None,
+                    "bot_method": msg['bot']['method'] if msg['bot'] else None,
+                    "timestamp": msg['timestamp']
+                }
+                rows.append(row)
+        df = pd.DataFrame(rows)
+        df.to_csv(CHAT_FILE, index=False, encoding='utf-8')
     except Exception as e:
         print(f"Error saving chat sessions: {e}")
 
@@ -93,11 +133,10 @@ def chat_api():
 def metrics():
     try:
         ratings_summary = {"utile": 0, "non_utile": 0}
-        if os.path.exists('data/ratings.json'):
-            ratings = [json.loads(line) for line in open('data/ratings.json', 'r', encoding='utf-8') if line.strip()]
-            if ratings:
-                ratings_summary["utile"] = sum(1 for r in ratings if r.get('rating'))
-                ratings_summary["non_utile"] = sum(1 for r in ratings if not r.get('rating'))
+        if os.path.exists('data/ratings.csv'):
+            ratings = pd.read_csv('data/ratings.csv', encoding='utf-8')
+            ratings_summary["utile"] = len(ratings[ratings['rating'] == True])
+            ratings_summary["non_utile"] = len(ratings[ratings['rating'] == False])
 
         return jsonify({
             "nb_score": nb_score,
@@ -134,9 +173,17 @@ def rate_response():
     try:
         data = request.json
         save_new_question(data.get('question'), None, data.get('rating'))
-        with open('data/ratings.json', 'a', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False)
-            f.write('\n')
+        rating_entry = {
+            "question": data.get('question'),
+            "rating": data.get('rating'),
+            "timestamp": pd.Timestamp.now().isoformat()
+        }
+        if os.path.exists('data/ratings.csv'):
+            df = pd.read_csv('data/ratings.csv', encoding='utf-8')
+            df = pd.concat([df, pd.DataFrame([rating_entry])], ignore_index=True)
+        else:
+            df = pd.DataFrame([rating_entry])
+        df.to_csv('data/ratings.csv', index=False, encoding='utf-8')
         return jsonify({"status": "success"})
     except Exception as e:
         print(f"Error saving rating: {e}")
@@ -148,8 +195,8 @@ def generate_report():
         from chatbot.config import shortcuts
         from sklearn.model_selection import cross_val_score
         shortcut_stats = {shortcut: 0 for shortcut in shortcuts.keys()}
-        if os.path.exists('data/new_questions.json'):
-            questions = [json.loads(line)["question"] for line in open('data/new_questions.json', 'r', encoding='utf-8') if line.strip()]
+        if os.path.exists('data/new_questions.csv'):
+            questions = pd.read_csv('data/new_questions.csv', encoding='utf-8')['question'].tolist()
             for shortcut in shortcuts.keys():
                 shortcut_stats[shortcut] = questions.count(shortcut)
         return jsonify({
@@ -167,10 +214,8 @@ def generate_report():
 def embeddings_metrics():
     try:
         test_questions = []
-        if os.path.exists('data/test_questions.json'):
-            with open('data/test_questions.json', 'r', encoding='utf-8') as f:
-                test_data = json.load(f)
-                test_questions = [item['question'] for item in test_data]
+        if os.path.exists('data/test_questions.csv'):
+            test_questions = pd.read_csv('data/test_questions.csv', encoding='utf-8')['question'].tolist()
 
         if not test_questions:
             test_questions = [

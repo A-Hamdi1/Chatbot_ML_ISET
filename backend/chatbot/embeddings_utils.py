@@ -1,36 +1,47 @@
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
-from chatbot.data_processing import (
-    word2vec_model, fasttext_model, 
-    get_document_vector_w2v, get_document_vector_fasttext,
-    w2v_question_vectors, fasttext_question_vectors
-)
+from chatbot.data_processing import word2vec_model, fasttext_model, w2v_question_vectors, fasttext_question_vectors, preprocess_text
 
-def get_best_match_with_word2vec(user_input):
-    """Find the best matching question using Word2Vec embeddings"""
-    input_vector = get_document_vector_w2v(user_input, word2vec_model)
-    # Reshape to 2D array for sklearn
-    input_vector_2d = input_vector.reshape(1, -1)
-    similarities = cosine_similarity(input_vector_2d, w2v_question_vectors)
+def get_best_match_with_word2vec(query, language='fr'):
+    query_vector = np.array([get_document_vector_w2v(query, word2vec_model, language)])
+    similarities = cosine_similarity(query_vector, w2v_question_vectors)
     best_match_idx = similarities.argmax()
-    return best_match_idx, float(similarities[0, best_match_idx])
+    max_similarity = similarities[0, best_match_idx]
+    return best_match_idx, max_similarity
 
-def get_best_match_with_fasttext(user_input):
-    """Find the best matching question using FastText embeddings"""
-    input_vector = get_document_vector_fasttext(user_input, fasttext_model)
-    # Reshape to 2D array for sklearn
-    input_vector_2d = input_vector.reshape(1, -1)
-    similarities = cosine_similarity(input_vector_2d, fasttext_question_vectors)
+def get_best_match_with_fasttext(query, language='fr'):
+    query_vector = np.array([get_document_vector_fasttext(query, fasttext_model, language)])
+    similarities = cosine_similarity(query_vector, fasttext_question_vectors)
     best_match_idx = similarities.argmax()
-    return best_match_idx, float(similarities[0, best_match_idx])
+    max_similarity = similarities[0, best_match_idx]
+    return best_match_idx, max_similarity
 
-def ensemble_similarity(user_input):
-    """Combine similarity scores from different models"""
-    # Get results from different approaches
-    w2v_idx, w2v_sim = get_best_match_with_word2vec(user_input)
-    ft_idx, ft_sim = get_best_match_with_fasttext(user_input)
+def ensemble_similarity(query, language='fr'):
+    w2v_idx, w2v_sim = get_best_match_with_word2vec(query, language)
+    ft_idx, ft_sim = get_best_match_with_fasttext(query, language)
     
-    # Simple ensemble - take best match with highest similarity
-    if w2v_sim > ft_sim:
-        return w2v_idx, w2v_sim
-    return ft_idx, ft_sim
+    # Weighted average of similarities (equal weights for simplicity)
+    weights = [0.5, 0.5]
+    if w2v_idx == ft_idx:
+        combined_similarity = (w2v_sim * weights[0] + ft_sim * weights[1])
+        return w2v_idx, combined_similarity
+    else:
+        # Choose the one with higher similarity
+        if w2v_sim > ft_sim:
+            return w2v_idx, w2v_sim
+        else:
+            return ft_idx, ft_sim
+
+def get_document_vector_w2v(doc, model, language='fr'):
+    words = preprocess_text(doc, language).split()
+    word_vectors = [model.wv[word] for word in words if word in model.wv]
+    if len(word_vectors) == 0:
+        return np.zeros(model.vector_size)
+    return np.mean(word_vectors, axis=0)
+
+def get_document_vector_fasttext(doc, model, language='fr'):
+    words = preprocess_text(doc, language).split()
+    word_vectors = [model.wv[word] for word in words if word in model.wv]
+    if len(word_vectors) == 0:
+        return np.zeros(model.vector_size)
+    return np.mean(word_vectors, axis=0)

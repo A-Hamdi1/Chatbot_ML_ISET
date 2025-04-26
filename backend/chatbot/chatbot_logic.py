@@ -6,7 +6,10 @@ from chatbot.models import nb_classifier, knn_classifier
 from chatbot.config import shortcuts, shortcut_urls
 from chatbot.embeddings_utils import get_best_match_with_word2vec, get_best_match_with_fasttext, ensemble_similarity
 import os
-import json
+from langdetect import detect, DetectorFactory
+
+# Assurer la reproductibilité de la détection de langue
+DetectorFactory.seed = 0
 
 def search_in_index(query):
     try:
@@ -39,6 +42,14 @@ def get_suggestions(user_input):
     return suggestions
 
 def get_response(user_input):
+    # Détecter automatiquement la langue
+    try:
+        language = detect(user_input)
+        if language not in ['fr', 'en']:
+            language = 'fr'  # Par défaut français si la détection échoue
+    except Exception:
+        language = 'fr'  # Secours si langdetect échoue
+
     # Check for shortcuts
     if user_input.startswith('/'):
         if user_input in shortcuts:
@@ -59,7 +70,7 @@ def get_response(user_input):
             "suggestions": []
         }
 
-    processed_input = preprocess_text(user_input)
+    processed_input = preprocess_text(user_input, language)
     input_tfidf = vectorizer.transform([processed_input])
     
     # Try TF-IDF (threshold: 0.65, adjust if too strict)
@@ -87,7 +98,7 @@ def get_response(user_input):
         }
     
     # Try Word2Vec (threshold: 0.8, adjust if needed)
-    w2v_idx, w2v_sim = get_best_match_with_word2vec(user_input)
+    w2v_idx, w2v_sim = get_best_match_with_word2vec(user_input, language=language)
     if w2v_sim > 0.8:
         return {
             "answer": responses[w2v_idx],
@@ -100,7 +111,7 @@ def get_response(user_input):
         }
     
     # Try FastText (threshold: 0.8)
-    ft_idx, ft_sim = get_best_match_with_fasttext(user_input)
+    ft_idx, ft_sim = get_best_match_with_fasttext(user_input, language=language)
     if ft_sim > 0.8:
         return {
             "answer": responses[ft_idx],
@@ -113,7 +124,7 @@ def get_response(user_input):
         }
     
     # Try ensemble (threshold: 0.7)
-    ens_idx, ens_sim = ensemble_similarity(user_input)
+    ens_idx, ens_sim = ensemble_similarity(user_input, language=language)
     if ens_sim > 0.7:
         return {
             "answer": responses[ens_idx],
@@ -167,13 +178,18 @@ def save_new_question(user_input, response, rating=None):
     try:
         if not os.path.exists("data"):
             os.makedirs("data")
-        with open('data/new_questions.json', 'a', encoding='utf-8') as f:
-            json.dump({
-                "question": user_input,
-                "response": response,
-                "rating": rating,
-                "timestamp": pd.Timestamp.now().isoformat()
-            }, f, ensure_ascii=False)
-            f.write('\n')
+        new_entry = {
+            "question": user_input,
+            "response": response,
+            "rating": rating,
+            "timestamp": pd.Timestamp.now().isoformat()
+        }
+        # Charger le fichier existant ou créer un nouveau DataFrame
+        if os.path.exists('data/new_questions.csv'):
+            df = pd.read_csv('data/new_questions.csv', encoding='utf-8')
+            df = pd.concat([df, pd.DataFrame([new_entry])], ignore_index=True)
+        else:
+            df = pd.DataFrame([new_entry])
+        df.to_csv('data/new_questions.csv', index=False, encoding='utf-8')
     except Exception as e:
         print(f"Error saving new question: {e}")
