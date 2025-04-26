@@ -1,16 +1,28 @@
-// App.js
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, AppBar, Toolbar, Typography, IconButton, Switch } from '@mui/material';
 import { Menu as MenuIcon, Brightness4, Brightness7 } from '@mui/icons-material';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import ChatPage from './pages/ChatPage';
 import MetricsPage from './pages/MetricsPage';
 import AboutPage from './pages/AboutPage';
 import EmbeddingsMetricsPage from './pages/EmbeddingsMetricsPage';
 import Sidebar from './components/Sidebar';
-import ErrorBoundary from './components/ErrorBoundary'; // Ajout
+import ErrorBoundary from './components/ErrorBoundary';
 import axios from 'axios';
+
+// Initialisation de React-Query
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -22,7 +34,8 @@ function App() {
   }, []);
 
   const fetchChatSessions = () => {
-    axios.get('http://localhost:5000/get_sessions')
+    axios
+      .get('http://localhost:5000/get_sessions')
       .then((response) => {
         setSessions(response.data.sort((a, b) => new Date(b.date) - new Date(a.date)));
       })
@@ -115,52 +128,73 @@ function App() {
   });
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
-          <Toolbar>
-            <IconButton edge="start" color="inherit" onClick={toggleDrawer} sx={{ mr: 2 }}>
-              <MenuIcon />
-            </IconButton>
-            <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-              Chatbot ISET
-            </Typography>
-            <Switch
-              checked={mode === 'dark'}
-              onChange={toggleMode}
-              icon={<Brightness7 />}
-              checkedIcon={<Brightness4 />}
-              color="default"
-            />
-          </Toolbar>
-        </AppBar>
-        <div style={{ display: 'flex' }}>
-          <Sidebar
-            open={drawerOpen}
-            toggleDrawer={toggleDrawer}
-            sessions={sessions}
-            setSessions={setSessions}
-            fetchChatSessions={fetchChatSessions}
-          />
-          <div style={{ flexGrow: 1, padding: '16px', marginTop: '64px' }}>
-            <Routes>
-              <Route path="/" element={<ChatPage sessions={sessions} setSessions={setSessions} />} />
-              <Route
-                path="/metrics"
-                element={
-                  <ErrorBoundary>
-                    <MetricsPage />
-                  </ErrorBoundary>
-                }
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router>
+          <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
+            <Toolbar>
+              <IconButton edge="start" color="inherit" onClick={toggleDrawer} sx={{ mr: 2 }}>
+                <MenuIcon />
+              </IconButton>
+              <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+                Chatbot ISET
+              </Typography>
+              <Switch
+                checked={mode === 'dark'}
+                onChange={toggleMode}
+                icon={<Brightness7 />}
+                checkedIcon={<Brightness4 />}
+                color="default"
               />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/embeddings-metrics" element={<EmbeddingsMetricsPage />} />
-            </Routes>
+            </Toolbar>
+          </AppBar>
+          <div style={{ display: 'flex' }}>
+            <Sidebar
+              open={drawerOpen}
+              toggleDrawer={toggleDrawer}
+              sessions={sessions}
+              setSessions={setSessions}
+              fetchChatSessions={fetchChatSessions}
+            />
+            <div style={{ flexGrow: 1, padding: '16px', marginTop: '64px' }}>
+              <Routes>
+                <Route path="/" element={<ChatPage sessions={sessions} setSessions={setSessions} />} />
+                <Route
+                  path="/metrics"
+                  element={
+                    <ErrorBoundary>
+                      <MetricsPage />
+                    </ErrorBoundary>
+                  }
+                />
+                <Route path="/about" element={<AboutPage />} />
+                <Route
+                  path="/embeddings-metrics"
+                  element={
+                    <ErrorBoundary>
+                      <EmbeddingsMetricsPage />
+                    </ErrorBoundary>
+                  }
+                />
+              </Routes>
+            </div>
           </div>
-        </div>
-      </Router>
-    </ThemeProvider>
+        </Router>
+        <ToastContainer
+          position="bottom-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme={mode}
+        />
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 
