@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
-import { CssBaseline, AppBar, Toolbar, Typography, IconButton, Switch } from '@mui/material';
+import { CssBaseline, AppBar, Toolbar, Typography, IconButton } from '@mui/material';
 import { Menu as MenuIcon, Brightness4, Brightness7 } from '@mui/icons-material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ToastContainer } from 'react-toastify';
@@ -26,8 +26,16 @@ const queryClient = new QueryClient({
 
 function App() {
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [mode, setMode] = useState('dark');
+  // Initialiser le mode à 'light' par défaut, ou charger depuis localStorage
+  const [mode, setMode] = useState(() => {
+    return localStorage.getItem('themeMode') || 'light';
+  });
   const [sessions, setSessions] = useState([]);
+
+  // Sauvegarder le mode dans localStorage à chaque changement
+  useEffect(() => {
+    localStorage.setItem('themeMode', mode);
+  }, [mode]);
 
   useEffect(() => {
     fetchChatSessions();
@@ -140,13 +148,9 @@ function App() {
               <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
                 Chatbot ISET
               </Typography>
-              <Switch
-                checked={mode === 'dark'}
-                onChange={toggleMode}
-                icon={<Brightness7 />}
-                checkedIcon={<Brightness4 />}
-                color="default"
-              />
+              <IconButton onClick={toggleMode} color="inherit">
+                {mode === 'light' ? <Brightness4 /> : <Brightness7 />}
+              </IconButton>
             </Toolbar>
           </AppBar>
           <div style={{ display: 'flex' }}>
