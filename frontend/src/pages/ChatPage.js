@@ -94,8 +94,33 @@ function ChatPage({ sessions, setSessions }) {
   };
 
   const sendShortcut = async (cmd) => {
-    setInput(cmd);
-    await handleSend();
+    if (!cmd.trim()) return;
+    const newMessage = { user: cmd, timestamp: new Date().toISOString() };
+    setMessages([...messages, newMessage]);
+  
+    try {
+      const response = await axios.post('http://localhost:5000/api/chat', {
+        message: cmd,
+        session_id: sessionId
+      });
+      const updatedMessages = [...messages, response.data.chat_entry];
+      setMessages(updatedMessages);
+      setSessionId(response.data.session_id);
+  
+      // Update sessions with the new message
+      setSessions(prevSessions => {
+        const updatedSessions = prevSessions.map(session =>
+          session.id === response.data.session_id
+            ? { ...session, messages: updatedMessages }
+            : session
+        );
+        return updatedSessions;
+      });
+    } catch (error) {
+      console.error('Error sending shortcut:', error);
+      setSnackbarMessage('Erreur lors de l\'envoi du raccourci');
+      setSnackbarOpen(true);
+    }
   };
 
   return (
