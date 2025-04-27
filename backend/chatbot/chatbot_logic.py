@@ -46,7 +46,7 @@ def get_response(user_input):
     try:
         language = detect(user_input)
         if language not in ['fr', 'en']:
-            language = 'fr'  # Par défaut français si la détection échoue
+            language = 'fr'  # Par défaut français
     except Exception:
         language = 'fr'  # Secours si langdetect échoue
 
