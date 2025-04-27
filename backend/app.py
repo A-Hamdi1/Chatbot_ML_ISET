@@ -32,7 +32,7 @@ def load_chat_sessions():
                         "similarity": row['bot_similarity'],
                         "category": row['bot_category'],
                         "is_shortcut": row['bot_is_shortcut'] == 'True',
-                        "method": row['bot_method']
+                        "method": row['bot_method'] if pd.notna(row['bot_method']) else None
                     }
                     messages.append({
                         "user": row['user_message'],
@@ -66,7 +66,7 @@ def save_chat_sessions(sessions):
                     "bot_similarity": msg['bot']['similarity'] if msg['bot'] else None,
                     "bot_category": msg['bot']['category'] if msg['bot'] else None,
                     "bot_is_shortcut": str(msg['bot']['is_shortcut']) if msg['bot'] else None,
-                    "bot_method": msg['bot']['method'] if msg['bot'] else None,
+                    "bot_method": msg['bot'].get('method', 'shortcut') if msg['bot'] else None,
                     "timestamp": msg['timestamp']
                 }
                 rows.append(row)
