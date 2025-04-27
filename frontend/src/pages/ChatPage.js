@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Container,
   TextField,
@@ -19,6 +19,7 @@ import axios from "axios";
 function ChatPage({ sessions, setSessions }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
+  const [voiceInput, setVoiceInput] = useState("");
   const [sessionId, setSessionId] = useState(
     new URLSearchParams(window.location.search).get("session_id")
   );
@@ -28,30 +29,181 @@ function ChatPage({ sessions, setSessions }) {
   const [speechRecognition, setSpeechRecognition] = useState(null);
   const chatBoxRef = useRef(null);
 
+  // Memoize handleSend for text input
+  const handleSend = useCallback(async () => {
+    if (!input.trim()) return;
+    const newMessage = { user: input, timestamp: new Date().toISOString() };
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+    try {
+      const response = await axios.post("http://localhost:5000/api/chat", {
+        message: input,
+        session_id: sessionId,
+        source: "text",
+      });
+      const updatedMessages = [...messages, response.data.chat_entry];
+      setMessages(updatedMessages);
+      setSessionId(response.data.session_id);
+
+      setSessions((prevSessions) => {
+        const updatedSessions = prevSessions.map((session) =>
+          session.id === response.data.session_id
+            ? { ...session, messages: updatedMessages }
+            : session
+        );
+        return updatedSessions;
+      });
+    } catch (error) {
+      console.error("Error sending message:", error);
+      setSnackbarMessage("Erreur lors de l'envoi du message");
+      setSnackbarOpen(true);
+    }
+    setInput("");
+  }, [input, sessionId, messages, setSessions]);
+
+  // Memoize handleVoiceSend for voice input
+  const handleVoiceSend = useCallback(async () => {
+    console.log("handleVoiceSend called with voiceInput:", voiceInput);
+    if (!voiceInput.trim()) {
+      console.warn("Empty voiceInput, showing Snackbar");
+      setSnackbarMessage("Aucun texte détecté, veuillez réessayer.");
+      setSnackbarOpen(true);
+      setVoiceInput("");
+      return;
+    }
+    const newMessage = { user: voiceInput, timestamp: new Date().toISOString() };
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+    try {
+      const response = await axios.post("http://localhost:5000/api/chat", {
+        message: voiceInput,
+        session_id: sessionId,
+        source: "voice",
+      });
+      const updatedMessages = [...messages, response.data.chat_entry];
+      setMessages(updatedMessages);
+      setSessionId(response.data.session_id);
+
+      setSessions((prevSessions) => {
+        const updatedSessions = prevSessions.map((session) =>
+          session.id === response.data.session_id
+            ? { ...session, messages: updatedMessages }
+            : session
+        );
+        return updatedSessions;
+      });
+    } catch (error) {
+      console.error("Error sending voice message:", error);
+      setSnackbarMessage("Erreur lors de l'envoi du message vocal");
+      setSnackbarOpen(true);
+    }
+    setVoiceInput("");
+  }, [voiceInput, sessionId, messages, setSessions]);
+
+  // Memoize handleRate
+  const handleRate = useCallback(async (question, isUseful) => {
+    try {
+      await axios.post("http://localhost:5000/rate", {
+        question,
+        rating: isUseful,
+      });
+      setSnackbarMessage("Merci pour votre retour !");
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error rating response:", error);
+      setSnackbarMessage("Erreur lors de l'envoi du retour");
+      setSnackbarOpen(true);
+    }
+  }, []);
+
+  // Memoize copyText
+  const copyText = useCallback(async (text) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setSnackbarMessage("Texte copié !");
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error copying text:", error);
+      setSnackbarMessage("Erreur lors de la copie du texte");
+      setSnackbarOpen(true);
+    }
+  }, []);
+
+  // Memoize sendShortcut
+  const sendShortcut = useCallback(async (cmd) => {
+    if (!cmd.trim()) return;
+    const newMessage = { user: cmd, timestamp: new Date().toISOString() };
+    setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+    try {
+      const response = await axios.post("http://localhost:5000/api/chat", {
+        message: cmd,
+        session_id: sessionId,
+        source: "shortcut",
+      });
+      const updatedMessages = [...messages, response.data.chat_entry];
+      setMessages(updatedMessages);
+      setSessionId(response.data.session_id);
+
+      setSessions((prevSessions) => {
+        const updatedSessions = prevSessions.map((session) =>
+          session.id === response.data.session_id
+            ? { ...session, messages: updatedMessages }
+            : session
+        );
+        return updatedSessions;
+      });
+    } catch (error) {
+      console.error("Error sending shortcut:", error);
+      setSnackbarMessage("Erreur lors de l'envoi du raccourci");
+      setSnackbarOpen(true);
+    }
+  }, [sessionId, messages, setSessions]);
+
+  // Check microphone permission
+  useEffect(() => {
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions
+        .query({ name: "microphone" })
+        .then((permissionStatus) => {
+          if (permissionStatus.state === "denied") {
+            setSnackbarMessage("L'accès au microphone est refusé. Veuillez autoriser l'accès dans les paramètres de votre navigateur.");
+            setSnackbarOpen(true);
+          }
+        })
+        .catch((error) => {
+          console.error("Error checking microphone permission:", error);
+        });
+    }
+  }, []);
+
   // Initialize Speech Recognition
   useEffect(() => {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
       recognition.lang = "fr-FR"; // Default to French
-      recognition.interimResults = true;
-      recognition.continuous = false;
+      recognition.interimResults = true; // Capture interim results
+      recognition.continuous = true; // Keep listening until stopped
 
       recognition.onresult = (event) => {
         const transcript = Array.from(event.results)
           .map((result) => result[0].transcript)
           .join("");
-        setInput(transcript);
+        console.log("SpeechRecognition onresult:", transcript, "isFinal:", event.results[0].isFinal);
+        setVoiceInput(transcript);
       };
 
       recognition.onerror = (event) => {
-        console.error("Speech recognition error:", event.error);
-        setSnackbarMessage("Erreur lors de la reconnaissance vocale.");
+        console.error("SpeechRecognition error:", event.error);
+        setSnackbarMessage("Erreur lors de la reconnaissance vocale : " + event.error);
         setSnackbarOpen(true);
         setIsRecording(false);
+        setVoiceInput("");
       };
 
       recognition.onend = () => {
+        console.log("SpeechRecognition ended");
         setIsRecording(false);
       };
 
@@ -95,103 +247,20 @@ function ChatPage({ sessions, setSessions }) {
     chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
   }, [messages]);
 
-  const handleSend = async () => {
-    if (!input.trim()) return;
-    const newMessage = { user: input, timestamp: new Date().toISOString() };
-    setMessages([...messages, newMessage]);
-
-    try {
-      const response = await axios.post("http://localhost:5000/api/chat", {
-        message: input,
-        session_id: sessionId,
-      });
-      const updatedMessages = [...messages, response.data.chat_entry];
-      setMessages(updatedMessages);
-      setSessionId(response.data.session_id);
-
-      setSessions((prevSessions) => {
-        const updatedSessions = prevSessions.map((session) =>
-          session.id === response.data.session_id
-            ? { ...session, messages: updatedMessages }
-            : session
-        );
-        return updatedSessions;
-      });
-    } catch (error) {
-      console.error("Error sending message:", error);
-      setSnackbarMessage("Erreur lors de l'envoi du message");
-      setSnackbarOpen(true);
-    }
-    setInput("");
-  };
-
-  const handleRate = async (question, isUseful) => {
-    try {
-      await axios.post("http://localhost:5000/rate", {
-        question,
-        rating: isUseful,
-      });
-      setSnackbarMessage("Merci pour votre retour !");
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error("Error rating response:", error);
-      setSnackbarMessage("Erreur lors de l'envoi du retour");
-      setSnackbarOpen(true);
-    }
-  };
-
-  const copyText = async (text) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setSnackbarMessage("Texte copié !");
-      setSnackbarOpen(true);
-    } catch (error) {
-      console.error("Error copying text:", error);
-      setSnackbarMessage("Erreur lors de la copie du texte");
-      setSnackbarOpen(true);
-    }
-  };
-
-  const sendShortcut = async (cmd) => {
-    if (!cmd.trim()) return;
-    const newMessage = { user: cmd, timestamp: new Date().toISOString() };
-    setMessages([...messages, newMessage]);
-
-    try {
-      const response = await axios.post("http://localhost:5000/api/chat", {
-        message: cmd,
-        session_id: sessionId,
-      });
-      const updatedMessages = [...messages, response.data.chat_entry];
-      setMessages(updatedMessages);
-      setSessionId(response.data.session_id);
-
-      setSessions((prevSessions) => {
-        const updatedSessions = prevSessions.map((session) =>
-          session.id === response.data.session_id
-            ? { ...session, messages: updatedMessages }
-            : session
-        );
-        return updatedSessions;
-      });
-    } catch (error) {
-      console.error("Error sending shortcut:", error);
-      setSnackbarMessage("Erreur lors de l'envoi du raccourci");
-      setSnackbarOpen(true);
-    }
-  };
-
-  const toggleRecording = () => {
+  const toggleRecording = useCallback(() => {
     if (!speechRecognition) return;
     if (isRecording) {
+      console.log("Stopping recording");
       speechRecognition.stop();
       setIsRecording(false);
+      handleVoiceSend(); // Send transcription when stopping
     } else {
-      setInput(""); // Clear input before starting
+      console.log("Starting recording");
+      setVoiceInput(""); // Clear previous transcription
       speechRecognition.start();
       setIsRecording(true);
     }
-  };
+  }, [isRecording, speechRecognition, handleVoiceSend]);
 
   return (
     <>
@@ -501,23 +570,24 @@ function ChatPage({ sessions, setSessions }) {
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
               {messages[messages.length - 1].bot.suggestions.map(
                 (suggestion, index) => (
-                  <Chip
-                    key={index}
-                    icon={
-                      <span role="img" aria-label="suggestion">
-                        💡
-                      </span>
-                    }
-                    label={suggestion.label}
-                    onClick={() => sendShortcut(suggestion.text)}
-                    clickable
-                    sx={{
-                      borderRadius: "16px",
-                      bgcolor: "tertiary.main",
-                      color: "black",
-                      "&:hover": { bgcolor: "tertiary.dark" },
-                    }}
-                  />
+                  <Box key={index}>
+                    <Chip
+                      icon={
+                        <span role="img" aria-label="suggestion">
+                          💡
+                        </span>
+                      }
+                      label={suggestion.label}
+                      onClick={() => sendShortcut(suggestion.text)}
+                      clickable
+                      sx={{
+                        borderRadius: "16px",
+                        bgcolor: "tertiary.main",
+                        color: "black",
+                        "&:hover": { bgcolor: "tertiary.dark" },
+                      }}
+                    />
+                  </Box>
                 )
               )}
             </Box>
@@ -532,7 +602,8 @@ function ChatPage({ sessions, setSessions }) {
         TransitionComponent={Slide}
         sx={{
           "& .MuiSnackbarContent-root": {
-            backgroundColor: snackbarMessage.startsWith("Erreur")
+            backgroundColor: snackbarMessage.startsWith("Erreur") ||
+              snackbarMessage.startsWith("Aucun")
               ? "error.main"
               : "primary.main",
             color: "white",
