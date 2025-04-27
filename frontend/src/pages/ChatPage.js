@@ -12,7 +12,7 @@ import {
   Fade,
   Snackbar,
 } from "@mui/material";
-import { Send, ThumbUp, ThumbDown, ContentCopy } from "@mui/icons-material";
+import { Send, ThumbUp, ThumbDown, ContentCopy, Mic, MicOff } from "@mui/icons-material";
 import Slide from "@mui/material/Slide";
 import axios from "axios";
 
@@ -24,7 +24,44 @@ function ChatPage({ sessions, setSessions }) {
   );
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [isRecording, setIsRecording] = useState(false);
+  const [speechRecognition, setSpeechRecognition] = useState(null);
   const chatBoxRef = useRef(null);
+
+  // Initialize Speech Recognition
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognition = new SpeechRecognition();
+      recognition.lang = "fr-FR"; // Default to French
+      recognition.interimResults = true;
+      recognition.continuous = false;
+
+      recognition.onresult = (event) => {
+        const transcript = Array.from(event.results)
+          .map((result) => result[0].transcript)
+          .join("");
+        setInput(transcript);
+      };
+
+      recognition.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        setSnackbarMessage("Erreur lors de la reconnaissance vocale.");
+        setSnackbarOpen(true);
+        setIsRecording(false);
+      };
+
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+
+      setSpeechRecognition(recognition);
+    } else {
+      console.warn("Speech Recognition API not supported in this browser.");
+      setSnackbarMessage("La reconnaissance vocale n'est pas supportée par votre navigateur.");
+      setSnackbarOpen(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (sessionId) {
@@ -32,7 +69,6 @@ function ChatPage({ sessions, setSessions }) {
       if (session) {
         setMessages(session.messages);
       } else {
-        // Fetch session if not in local state (e.g., page refresh)
         axios
           .get("http://localhost:5000/get_sessions")
           .then((response) => {
@@ -73,7 +109,6 @@ function ChatPage({ sessions, setSessions }) {
       setMessages(updatedMessages);
       setSessionId(response.data.session_id);
 
-      // Update sessions with the new message
       setSessions((prevSessions) => {
         const updatedSessions = prevSessions.map((session) =>
           session.id === response.data.session_id
@@ -131,7 +166,6 @@ function ChatPage({ sessions, setSessions }) {
       setMessages(updatedMessages);
       setSessionId(response.data.session_id);
 
-      // Update sessions with the new message
       setSessions((prevSessions) => {
         const updatedSessions = prevSessions.map((session) =>
           session.id === response.data.session_id
@@ -144,6 +178,18 @@ function ChatPage({ sessions, setSessions }) {
       console.error("Error sending shortcut:", error);
       setSnackbarMessage("Erreur lors de l'envoi du raccourci");
       setSnackbarOpen(true);
+    }
+  };
+
+  const toggleRecording = () => {
+    if (!speechRecognition) return;
+    if (isRecording) {
+      speechRecognition.stop();
+      setIsRecording(false);
+    } else {
+      setInput(""); // Clear input before starting
+      speechRecognition.start();
+      setIsRecording(true);
     }
   };
 
@@ -313,9 +359,23 @@ function ChatPage({ sessions, setSessions }) {
             }}
           />
           <IconButton
+            onClick={toggleRecording}
+            disabled={!speechRecognition}
+            sx={{
+              ml: 1,
+              bgcolor: isRecording ? "error.main" : "secondary.main",
+              color: "white",
+              "&:hover": { bgcolor: isRecording ? "error.dark" : "secondary.dark" },
+              width: 56,
+              height: 56,
+            }}
+          >
+            {isRecording ? <MicOff /> : <Mic />}
+          </IconButton>
+          <IconButton
             onClick={handleSend}
             sx={{
-              ml: 2,
+              ml: 1,
               bgcolor: "primary.main",
               color: "white",
               "&:hover": { bgcolor: "primary.dark" },
@@ -349,10 +409,10 @@ function ChatPage({ sessions, setSessions }) {
               bgcolor: "primary.main",
               color: "white",
               "&:hover": { bgcolor: "primary.dark" },
-              height: "40px", // Augmenter la hauteur des Chips
-              fontSize: "1rem", // Optionnel : ajuster la taille du texte pour l'esthétique
-              flex: "1 1 auto", // S'adapter à la largeur disponible
-              minWidth: "100px", // Largeur minimale pour chaque Chip
+              height: "40px",
+              fontSize: "1rem",
+              flex: "1 1 auto",
+              minWidth: "100px",
             }}
           />
           <Chip

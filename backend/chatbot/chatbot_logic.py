@@ -41,7 +41,8 @@ def get_suggestions(user_input):
         suggestions.append({"text": "/examens", "label": "📖 Examens"})
     return suggestions
 
-def get_response(user_input):
+def get_response(user_input, input_source='text'):
+    print(f"Processing input from {input_source}: {user_input}")
     # Détecter automatiquement la langue
     try:
         language = detect(user_input)
@@ -70,7 +71,7 @@ def get_response(user_input):
             "suggestions": []
         }
 
-    processed_input = preprocess_text(user_input, language)
+    processed_input = preprocess_text(user_input, language, is_voice=input_source == 'voice')
     input_tfidf = vectorizer.transform([processed_input])
     
     # Try TF-IDF (threshold: 0.65, adjust if too strict)
@@ -98,7 +99,7 @@ def get_response(user_input):
         }
     
     # Try Word2Vec (threshold: 0.8, adjust if needed)
-    w2v_idx, w2v_sim = get_best_match_with_word2vec(user_input, language=language)
+    w2v_idx, w2v_sim = get_best_match_with_word2vec(user_input, language)
     if w2v_sim > 0.8:
         return {
             "answer": responses[w2v_idx],
@@ -111,7 +112,7 @@ def get_response(user_input):
         }
     
     # Try FastText (threshold: 0.8)
-    ft_idx, ft_sim = get_best_match_with_fasttext(user_input, language=language)
+    ft_idx, ft_sim = get_best_match_with_fasttext(user_input, language)
     if ft_sim > 0.8:
         return {
             "answer": responses[ft_idx],
@@ -124,7 +125,7 @@ def get_response(user_input):
         }
     
     # Try ensemble (threshold: 0.7)
-    ens_idx, ens_sim = ensemble_similarity(user_input, language=language)
+    ens_idx, ens_sim = ensemble_similarity(user_input, language)
     if ens_sim > 0.7:
         return {
             "answer": responses[ens_idx],
@@ -184,7 +185,6 @@ def save_new_question(user_input, response, rating=None):
             "rating": rating,
             "timestamp": pd.Timestamp.now().isoformat()
         }
-        # Charger le fichier existant ou créer un nouveau DataFrame
         if os.path.exists('data/new_questions.csv'):
             df = pd.read_csv('data/new_questions.csv', encoding='utf-8')
             df = pd.concat([df, pd.DataFrame([new_entry])], ignore_index=True)

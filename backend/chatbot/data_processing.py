@@ -17,6 +17,8 @@ nltk.download('stopwords', quiet=True)
 
 stemmer_fr = SnowballStemmer('french')
 stop_words_fr = set(stopwords.words('french'))
+# Common filler words in French for voice input
+filler_words_fr = {'euh', 'hum', 'ben', 'tu sais', 'genre', 'comme', 'voilà'}
 
 schema = Schema(question=TEXT(stored=True), answer=TEXT(stored=True), url=TEXT(stored=True))
 if not os.path.exists("indexdir"):
@@ -25,7 +27,6 @@ ix = create_in("indexdir", schema)
 
 def load_data():
     try:
-        # Charger le nouveau dataset CSV
         data = pd.read_csv('data/data_option1.csv', encoding='utf-8')
         questions = []
         responses = []
@@ -37,7 +38,7 @@ def load_data():
             question = row['question']
             answer = row['answer']
             category = row['category']
-            url = row['url']  # URLs relatives
+            url = row['url']
             writer.add_document(question=question, answer=answer, url=url)
             questions.append(question)
             responses.append(answer)
@@ -55,22 +56,24 @@ def load_data():
 
 questions, responses, urls, categories = load_data()
 
-def preprocess_text(text, language='fr'):
-    stemmer = stemmer_fr  # Par défaut en français
+def preprocess_text(text, language='fr', is_voice=False):
+    stemmer = stemmer_fr
     stop_words = stop_words_fr
     text = text.lower().translate(str.maketrans('', '', string.punctuation))
+    if is_voice:
+        # Remove filler words for voice input
+        words = word_tokenize(text)
+        words = [word for word in words if word not in filler_words_fr]
+        text = ' '.join(words)
     tokens = [stemmer.stem(word) for word in word_tokenize(text) if word not in stop_words]
     return ' '.join(tokens)
 
-# Tokenized texts for word embeddings
 tokenized_questions = [preprocess_text(q, 'fr').split() for q in questions]
 
-# Vectorizer for TF-IDF
 vectorizer = TfidfVectorizer(ngram_range=(1, 2), max_df=0.9, min_df=2)
 processed_questions = [preprocess_text(q, 'fr') for q in questions]
 tfidf_matrix = vectorizer.fit_transform(processed_questions)
 
-# Train Word2Vec model
 word2vec_model_path = 'models/word2vec.model'
 if os.path.exists(word2vec_model_path):
     word2vec_model = Word2Vec.load(word2vec_model_path)
@@ -80,7 +83,6 @@ else:
         os.makedirs('models')
     word2vec_model.save(word2vec_model_path)
 
-# Train FastText model
 fasttext_model_path = 'models/fasttext.model'
 if os.path.exists(fasttext_model_path):
     fasttext_model = FastText.load(fasttext_model_path)
@@ -102,6 +104,5 @@ def get_document_vector_fasttext(doc, model, language='fr'):
         return np.zeros(model.vector_size)
     return np.mean(word_vectors, axis=0)
 
-# Pre-calculate document vectors
 w2v_question_vectors = np.array([get_document_vector_w2v(q, word2vec_model, 'fr') for q in questions])
 fasttext_question_vectors = np.array([get_document_vector_fasttext(q, fasttext_model, 'fr') for q in questions])

@@ -1,5 +1,6 @@
 from http.client import responses as http_responses
 import os
+import re
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from waitress import serve
@@ -21,7 +22,6 @@ def load_chat_sessions():
     try:
         if os.path.exists(CHAT_FILE):
             df = pd.read_csv(CHAT_FILE, encoding='utf-8')
-            # Regrouper par session_id pour reconstruire les sessions
             sessions = []
             for session_id, group in df.groupby('session_id'):
                 messages = []
@@ -53,7 +53,6 @@ def load_chat_sessions():
 def save_chat_sessions(sessions):
     try:
         os.makedirs(os.path.dirname(CHAT_FILE), exist_ok=True)
-        # Aplatir les sessions en un DataFrame
         rows = []
         for session in sessions:
             for msg in session['messages']:
@@ -85,9 +84,17 @@ def chat_api():
         data = request.json
         user_input = data.get('message')
         session_id = data.get('session_id')
+        input_source = data.get('source', 'text')  # 'voice' or 'text'
+
         if not user_input:
             return jsonify({"status": "error", "message": "Message is required"}), 400
 
+        # Clean transcribed input (remove excessive whitespace, invalid characters)
+        user_input = re.sub(r'\s+', ' ', user_input.strip())
+        if not re.match(r'^[\w\s.,!?\'"-]+$', user_input):
+            return jsonify({"status": "error", "message": "Invalid characters in input"}), 400
+
+        print(f"Processing {input_source} input: {user_input}")
         response = get_response(user_input)
         timestamp = datetime.datetime.now().isoformat()
         chat_entry = {
@@ -164,7 +171,8 @@ def about():
             "💡 Suggestions proactives selon le contexte",
             "📚 Auto-apprentissage basé sur les nouvelles questions",
             "⭐ Système d’évaluation des réponses",
-            "📜 Gestion des sessions de chat avec historique"
+            "📜 Gestion des sessions de chat avec historique",
+            "🎙️ Entrée vocale via reconnaissance vocale"
         ]
     })
 
