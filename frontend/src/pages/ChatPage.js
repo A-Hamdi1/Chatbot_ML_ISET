@@ -129,25 +129,37 @@ function ChatPage({ sessions, setSessions }) {
     }
   }, []);
 
-  // Memoize sendShortcut
   const sendShortcut = useCallback(async (cmd) => {
-    if (!cmd.trim()) return;
-    const newMessage = { user: cmd, timestamp: new Date().toISOString() };
+    if (!cmd.trim()) {
+      setSnackbarMessage("Commande vide");
+      setSnackbarOpen(true);
+      return;
+    }
+
+    // Strip leading '/' from shortcut command
+    const cleanedCmd = cmd.startsWith('/') ? cmd.slice(1) : cmd;
+
+    console.log("Sending shortcut:", cleanedCmd, "with sessionId:", sessionId); 
+
+    const newMessage = { user: cmd, timestamp: new Date().toISOString() }; 
     setMessages((prevMessages) => [...prevMessages, newMessage]);
 
     try {
-      const response = await axios.post("http://localhost:5000/api/chat", {
-        message: cmd,
-        session_id: sessionId,
+      const payload = {
+        message: cleanedCmd,
+        session_id: sessionId || null,
         source: "shortcut",
-      });
-      const updatedMessages = [...messages, response.data.chat_entry];
+      };
+      const response = await axios.post("http://localhost:5000/api/chat", payload);
+      const { chat_entry, session_id } = response.data;
+
+      const updatedMessages = [...messages, chat_entry];
       setMessages(updatedMessages);
-      setSessionId(response.data.session_id);
+      setSessionId(session_id);
 
       setSessions((prevSessions) => {
         const updatedSessions = prevSessions.map((session) =>
-          session.id === response.data.session_id
+          session.id === session_id
             ? { ...session, messages: updatedMessages }
             : session
         );
@@ -155,8 +167,12 @@ function ChatPage({ sessions, setSessions }) {
       });
     } catch (error) {
       console.error("Error sending shortcut:", error);
-      setSnackbarMessage("Erreur lors de l'envoi du raccourci");
+      const errorMessage =
+        error.response?.data?.message ||
+        "Erreur lors de l'envoi du raccourci. Vérifiez la connexion au serveur.";
+      setSnackbarMessage(errorMessage);
       setSnackbarOpen(true);
+      setMessages((prevMessages) => prevMessages.slice(0, -1));
     }
   }, [sessionId, messages, setSessions]);
 
