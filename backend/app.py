@@ -9,6 +9,7 @@ from chatbot.embeddings_utils import ensemble_similarity, get_best_match_with_fa
 from chatbot.models import nb_classifier, knn_classifier, nb_score, nb_f1, best_knn_score, best_knn_f1, best_n_neighbors
 from chatbot.chatbot_logic import get_response, save_new_question, search_in_index
 from sklearn.metrics.pairwise import cosine_similarity
+from chatbot.self_learning import get_well_rated_questions, check_for_duplicates, predict_category, integrate_questions, get_learning_status
 import pandas as pd
 import datetime
 
@@ -91,7 +92,7 @@ def chat_api():
 
         # Clean transcribed input (remove excessive whitespace, invalid characters)
         user_input = re.sub(r'\s+', ' ', user_input.strip())
-        if not re.match(r'^[\w\s.,!?\'"-]+$', user_input):
+        if not re.match(r'^[\w\s.,!?\'"/-]+$', user_input):
             return jsonify({"status": "error", "message": "Invalid characters in input"}), 400
 
         print(f"Processing {input_source} input: {user_input}")
@@ -314,6 +315,99 @@ def get_sessions():
     except Exception as e:
         print(f"Error getting sessions: {e}")
         return jsonify({"status": "error", "message": "Erreur lors de la récupération des sessions."}), 500
+
+
+
+@app.route('/api/self-learning/status', methods=['GET'])
+def self_learning_status():
+    """
+    Route pour obtenir le statut actuel du système d'auto-apprentissage
+    """
+    try:
+        status = get_learning_status()
+        return jsonify(status)
+    except Exception as e:
+        print(f"Error getting self-learning status: {e}")
+        return jsonify({"status": "error", "message": "Erreur lors de l'obtention du statut d'apprentissage."}), 500
+
+@app.route('/api/self-learning/candidates', methods=['GET'])
+def get_candidates():
+    """
+    Route pour obtenir les questions candidates pour l'intégration
+    """
+    try:
+        # Récupérer les questions bien notées (limitées à 10)
+        candidates = get_well_rated_questions(limit=10)
+        
+        if candidates.empty:
+            return jsonify({"status": "info", "message": "Aucune question bien notée n'est disponible pour l'intégration.", "candidates": []})
+            
+        # Charger les questions existantes pour vérifier les doublons
+        questions, _, urls, _ = load_data()
+        
+        # Vérifier les doublons
+        non_duplicate_indices = check_for_duplicates(candidates['question'].tolist(), questions)
+        filtered_candidates = candidates.iloc[non_duplicate_indices].reset_index(drop=True)
+        
+        if filtered_candidates.empty:
+            return jsonify({"status": "info", "message": "Toutes les questions bien notées sont déjà présentes dans la base de données.", "candidates": []})
+            
+        # Prédire les catégories pour chaque question
+        categories = []
+        confidences = []
+        for question in filtered_candidates['question']:
+            category, confidence = predict_category(question)
+            categories.append(category)
+            confidences.append(float(confidence))
+            
+        # Ajouter les catégories prédites et les URL (vides pour l'instant)
+        filtered_candidates['category'] = categories
+        filtered_candidates['confidence'] = confidences
+        filtered_candidates['url'] = '/auto-learning'  # URL par défaut
+        
+        # Convertir à JSON et renvoyer
+        candidates_json = filtered_candidates.to_dict(orient='records')
+        return jsonify({
+            "status": "success", 
+            "candidates": candidates_json,
+            "total": len(candidates_json)
+        })
+        
+    except Exception as e:
+        print(f"Error getting self-learning candidates: {e}")
+        return jsonify({"status": "error", "message": f"Erreur lors de la récupération des candidats: {str(e)}"}), 500
+
+@app.route('/api/self-learning/integrate', methods=['POST'])
+def integrate_validated_questions():
+    """
+    Route pour intégrer les questions validées dans la base de données
+    """
+    try:
+        data = request.json
+        validated_questions = data.get('questions', [])
+        
+        if not validated_questions:
+            return jsonify({"status": "error", "message": "Aucune question à intégrer."}), 400
+            
+        # Convertir en DataFrame
+        df = pd.DataFrame(validated_questions)
+        
+        # Intégrer dans data_option1.csv
+        success = integrate_questions(df)
+        
+        if success:
+            return jsonify({
+                "status": "success", 
+                "message": "Questions intégrées avec succès.", 
+                "count": len(validated_questions)
+            })
+        else:
+            return jsonify({"status": "error", "message": "Erreur lors de l'intégration des questions."}), 500
+            
+    except Exception as e:
+        print(f"Error integrating validated questions: {e}")
+        return jsonify({"status": "error", "message": f"Erreur: {str(e)}"}), 500
+    
 
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))

@@ -128,35 +128,31 @@ function ChatPage({ sessions, setSessions }) {
       setSnackbarOpen(true);
     }
   }, []);
-
   const sendShortcut = useCallback(async (cmd) => {
     if (!cmd.trim()) {
       setSnackbarMessage("Commande vide");
       setSnackbarOpen(true);
       return;
     }
-
-    // Strip leading '/' from shortcut command
-    const cleanedCmd = cmd.startsWith('/') ? cmd.slice(1) : cmd;
-
-    console.log("Sending shortcut:", cleanedCmd, "with sessionId:", sessionId); 
-
+  
+    console.log("Sending shortcut:", cmd, "with sessionId:", sessionId); 
+  
     const newMessage = { user: cmd, timestamp: new Date().toISOString() }; 
     setMessages((prevMessages) => [...prevMessages, newMessage]);
-
+  
     try {
       const payload = {
-        message: cleanedCmd,
+        message: cmd, // <-- On garde le slash ici
         session_id: sessionId || null,
         source: "shortcut",
       };
       const response = await axios.post("http://localhost:5000/api/chat", payload);
       const { chat_entry, session_id } = response.data;
-
+  
       const updatedMessages = [...messages, chat_entry];
       setMessages(updatedMessages);
       setSessionId(session_id);
-
+  
       setSessions((prevSessions) => {
         const updatedSessions = prevSessions.map((session) =>
           session.id === session_id
@@ -175,7 +171,7 @@ function ChatPage({ sessions, setSessions }) {
       setMessages((prevMessages) => prevMessages.slice(0, -1));
     }
   }, [sessionId, messages, setSessions]);
-
+ 
   // Check microphone permission
   useEffect(() => {
     if (navigator.permissions && navigator.permissions.query) {
