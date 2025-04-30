@@ -252,16 +252,16 @@ def embeddings_metrics():
 
             result = {
                 'question': question,
-                'tfidf': {'response': responses[tfidf_best_idx], 'similarity': tfidf_similarity},
-                'word2vec': {'response': responses[w2v_idx], 'similarity': w2v_sim},
-                'fasttext': {'response': responses[ft_idx], 'similarity': ft_sim},
-                'ensemble': {'response': responses[ens_idx], 'similarity': ens_sim}
+                'tfidf': {'response': responses[tfidf_best_idx], 'similarity': float(tfidf_similarity)},
+                'word2vec': {'response': responses[w2v_idx], 'similarity': float(w2v_sim)},  # Convertir
+                'fasttext': {'response': responses[ft_idx], 'similarity': float(ft_sim)},  # Convertir
+                'ensemble': {'response': responses[ens_idx], 'similarity': float(ens_sim)},  
             }
             results.append(result)
 
         methods = ['tfidf', 'word2vec', 'fasttext', 'ensemble']
-        similarities = [[r[m]['similarity'] for r in results] for m in methods]
-
+        # similarities = [[r[m]['similarity'] for r in results] for m in methods]
+        similarities = [[float(r[m]['similarity']) for r in results] for m in methods]  # Convertir toutes les similarités
         method_counts = {}
         for r in results:
             best_method = max(methods, key=lambda m: r[m]['similarity'])
@@ -338,6 +338,8 @@ def get_candidates():
     try:
         # Récupérer les questions bien notées (limitées à 10)
         candidates = get_well_rated_questions(limit=10)
+        print(f"Nombre de candidates récupérées: {len(candidates)}")
+        print(f"Candidates:\n{candidates}")
         
         if candidates.empty:
             return jsonify({"status": "info", "message": "Aucune question bien notée n'est disponible pour l'intégration.", "candidates": []})

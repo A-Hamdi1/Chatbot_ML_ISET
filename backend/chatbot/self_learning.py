@@ -22,28 +22,48 @@ def get_well_rated_questions(limit=10):
     """
     try:
         if not (os.path.exists('data/ratings.csv') and os.path.exists('data/new_questions.csv')):
+            print("Fichiers ratings.csv ou new_questions.csv manquants")
             return pd.DataFrame()
             
         # Charger les données
         ratings = pd.read_csv('data/ratings.csv', encoding='utf-8')
         new_questions = pd.read_csv('data/new_questions.csv', encoding='utf-8')
         
+        # Vérifier les colonnes
+        print("Colonnes de new_questions.csv:", new_questions.columns.tolist())
+        
         # Filtrer les questions bien notées
         well_rated = ratings[ratings['rating'] == True]
         if well_rated.empty:
+            print("Aucune question bien notée trouvée dans ratings.csv")
             return pd.DataFrame()
             
-        # Associer les questions bien notées à leurs réponses dans new_questions
-        merged = pd.merge(well_rated, new_questions, on='question', how='inner')
-        merged = merged.drop_duplicates(subset=['question'])
+        # Filtrer new_questions pour ne garder que les lignes avec une réponse non vide
+        new_questions = new_questions[new_questions['response'].notna()]
+        if new_questions.empty:
+            print("Aucune réponse valide trouvée dans new_questions.csv")
+            return pd.DataFrame()
+            
+        # Supprimer les doublons dans new_questions, garder la dernière entrée
+        new_questions = new_questions.drop_duplicates(subset=['question'], keep='last')
         
-        # Sélectionner les colonnes pertinentes et limiter le nombre
-        result = merged[['question', 'response_y']].rename(columns={'response_y': 'answer'})
+        # Associer les questions bien notées à leurs réponses
+        merged = pd.merge(well_rated, new_questions, on='question', how='inner')
+        if merged.empty:
+            print("Aucune correspondance trouvée entre ratings et new_questions")
+            return pd.DataFrame()
+            
+        # Vérifier les colonnes après fusion
+        print("Colonnes après fusion:", merged.columns.tolist())
+        
+        # Sélectionner les colonnes pertinentes et renommer
+        result = merged[['question', 'response']].rename(columns={'response': 'answer'})
+        print(f"{len(result)} questions bien notées récupérées")
         return result.head(limit)
     except Exception as e:
         print(f"Erreur lors de la récupération des questions bien notées: {e}")
         return pd.DataFrame()
-
+    
 def check_for_duplicates(questions, existing_questions, threshold=0.9):
     """
     Vérifie si les questions sont des doublons des questions existantes
@@ -232,7 +252,7 @@ def get_learning_status():
             "well_rated_available": num_well_rated,
             "total_questions": num_total_questions,
             "new_questions": num_new_questions,
-            "candidates_ready": num_well_rated >= 5  # Au moins 5 questions bien notées
+            "candidates_ready": num_well_rated >= 10  # Au moins 5 questions bien notées
         }
     except Exception as e:
         print(f"Erreur lors de l'obtention du statut: {e}")

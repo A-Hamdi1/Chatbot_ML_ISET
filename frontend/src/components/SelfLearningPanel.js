@@ -149,6 +149,11 @@ const SelfLearningPanel = () => {
       setCandidatesOpen(false);
     }
   };
+  const handleUrlEdit = (index, newUrl) => {
+    const updatedCandidates = [...candidates];
+    updatedCandidates[index].url = newUrl;
+    setCandidates(updatedCandidates);
+  };
 
   return (
     <Card sx={{ mt: 4 }}>
@@ -194,7 +199,7 @@ const SelfLearningPanel = () => {
       </CardContent>
 
       {/* Dialog pour afficher et valider les questions candidates */}
-      <Dialog 
+      {/* <Dialog 
         open={candidatesOpen} 
         onClose={() => setCandidatesOpen(false)}
         maxWidth="md"
@@ -267,6 +272,126 @@ const SelfLearningPanel = () => {
                             <MenuItem value="contact">Contact</MenuItem>
                             <MenuItem value="general">Général</MenuItem>
                             <MenuItem value="autres">Autres</MenuItem>
+                          </Select>
+                        </FormControl>
+                        
+                        <Chip 
+                          label={candidate.category}
+                          size="small"
+                          sx={{ 
+                            ml: 1, 
+                            backgroundColor: categoryColors[candidate.category] || '#757575',
+                            color: 'white' 
+                          }}
+                        />
+                      </Box>
+                    </CardContent>
+                  </Card>
+                ))}
+              </List>
+            </>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setCandidatesOpen(false)} color="inherit">
+            Annuler
+          </Button>
+          <Button 
+            onClick={handleIntegration} 
+            color="primary" 
+            variant="contained"
+            disabled={loading || candidates.length === 0 || Object.values(selectedCandidates).every(val => !val)}
+            startIcon={loading ? <CircularProgress size={20} /> : <Check />}
+          >
+            Intégrer les questions sélectionnées
+          </Button>
+        </DialogActions>
+      </Dialog> */}
+
+{/* Dialog pour afficher et valider les questions candidates */}
+<Dialog 
+        open={candidatesOpen} 
+        onClose={() => setCandidatesOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          Validation des questions candidates
+        </DialogTitle>
+        <DialogContent>
+          {candidates.length === 0 ? (
+            <DialogContentText>
+              Aucune question candidate disponible actuellement. Les questions pourraient déjà être présentes dans la base de données ou il n'y a pas assez de questions bien notées.
+            </DialogContentText>
+          ) : (
+            <>
+              <DialogContentText sx={{ mb: 2 }}>
+                Veuillez vérifier et valider les questions suivantes avant leur intégration dans la base de connaissances du chatbot.
+              </DialogContentText>
+              
+              <List sx={{ width: '100%' }}>
+                {candidates.map((candidate, index) => (
+                  <Card key={index} sx={{ mb: 2, border: selectedCandidates[index] ? '1px solid #4caf50' : '1px solid #e0e0e0' }}>
+                    <CardContent>
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                        <FormControlLabel
+                          control={
+                            <Checkbox 
+                              checked={selectedCandidates[index] || false}
+                              onChange={() => handleSelectionChange(index)}
+                              color="primary"
+                            />
+                          }
+                          label={<Typography variant="subtitle1" fontWeight="bold">{candidate.question}</Typography>}
+                        />
+                        <Chip 
+                          label={`${Math.round(candidate.confidence * 100)}% de confiance`}
+                          color={candidate.confidence > 0.8 ? "success" : candidate.confidence > 0.6 ? "warning" : "error"}
+                          size="small"
+                        />
+                      </Box>
+                      
+                      <Divider sx={{ my: 1 }} />
+                      
+                      <Box sx={{ mt: 2 }}>
+                        <TextField
+                          label="Réponse"
+                          variant="outlined"
+                          fullWidth
+                          multiline
+                          rows={2}
+                          value={candidate.answer}
+                          onChange={(e) => handleAnswerEdit(index, e.target.value)}
+                          disabled={!selectedCandidates[index]}
+                          sx={{ mb: 2 }}
+                        />
+                        <TextField
+                          label="URL (optionnel)"
+                          variant="outlined"
+                          fullWidth
+                          value={candidate.url}
+                          onChange={(e) => handleUrlEdit(index, e.target.value)}
+                          disabled={!selectedCandidates[index]}
+                          sx={{ mb: 2 }}
+                        />
+                        <FormControl variant="outlined" size="small" sx={{ minWidth: 200 }}>
+                          <InputLabel>Catégorie</InputLabel>
+                          <Select
+                            value={candidate.category}
+                            onChange={(e) => handleCategoryChange(index, e.target.value)}
+                            label="Catégorie"
+                            disabled={!selectedCandidates[index]}
+                          >
+                            <MenuItem value="inscription">Inscription</MenuItem>
+                            <MenuItem value="programmes">Programmes</MenuItem>
+                            <MenuItem value="logistique">Logistique</MenuItem>
+                            <MenuItem value="administration">Administration</MenuItem>
+                            <MenuItem value="Carriere">Carriere</MenuItem>
+                            <MenuItem value="recherche">Recherche</MenuItem>
+                            <MenuItem value="international">International</MenuItem>
+                            <MenuItem value="technique">Technique</MenuItem>
+                            <MenuItem value="examens">Examens</MenuItem>
+                            <MenuItem value="vie_etudiante">Vie Etudiante</MenuItem>
                           </Select>
                         </FormControl>
                         
