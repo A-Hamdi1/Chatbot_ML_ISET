@@ -176,8 +176,29 @@ const SelfLearningPanel = () => {
         </Typography>
 
         <Divider sx={{ mb: 2 }} />
-
         <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography variant="body1">
+              Questions bien notées disponibles:
+            </Typography>
+            <Chip
+              label={status.well_rated_available}
+              color={status.well_rated_available > 0 ? "success" : "default"}
+              sx={{ ml: 1 }}
+            />
+          </Box>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography variant="body1">
+              Total dans la base de données:
+            </Typography>
+            <Chip
+              label={status.total_questions}
+              color="primary"
+              sx={{ ml: 1 }}
+            />
+          </Box>
+        </Box>
+        {/* <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
           <Typography variant="body1">
             Questions bien notées disponibles:{" "}
             <Chip
@@ -189,7 +210,7 @@ const SelfLearningPanel = () => {
             Total dans la base de données:{" "}
             <Chip label={status.total_questions} color="primary" />
           </Typography>
-        </Box>
+        </Box> */}
 
         <Alert
           severity={status.candidates_ready ? "success" : "info"}
