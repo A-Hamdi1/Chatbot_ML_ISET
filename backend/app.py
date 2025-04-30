@@ -9,7 +9,7 @@ from chatbot.embeddings_utils import ensemble_similarity, get_best_match_with_fa
 from chatbot.models import nb_classifier, knn_classifier, nb_score, nb_f1, best_knn_score, best_knn_f1, best_n_neighbors
 from chatbot.chatbot_logic import get_response, save_new_question, search_in_index
 from sklearn.metrics.pairwise import cosine_similarity
-from chatbot.self_learning import get_well_rated_questions, check_for_duplicates, predict_category, integrate_questions, get_learning_status
+from chatbot.self_learning import get_well_rated_questions, check_for_duplicates, integrate_candidates, predict_category, integrate_questions, get_learning_status, update_models
 import pandas as pd
 import datetime
 
@@ -380,37 +380,40 @@ def get_candidates():
         return jsonify({"status": "error", "message": f"Erreur lors de la récupération des candidats: {str(e)}"}), 500
 
 @app.route('/api/self-learning/integrate', methods=['POST'])
-def integrate_validated_questions():
-    """
-    Route pour intégrer les questions validées dans la base de données
-    """
+def integrate_candidates_endpoint():
     try:
-        data = request.json
-        validated_questions = data.get('questions', [])
-        
-        if not validated_questions:
-            return jsonify({"status": "error", "message": "Aucune question à intégrer."}), 400
-            
-        # Convertir en DataFrame
-        df = pd.DataFrame(validated_questions)
-        
-        # Intégrer dans data_option1.csv
-        success = integrate_questions(df)
-        
-        if success:
-            return jsonify({
-                "status": "success", 
-                "message": "Questions intégrées avec succès.", 
-                "count": len(validated_questions)
-            })
-        else:
-            return jsonify({"status": "error", "message": "Erreur lors de l'intégration des questions."}), 500
-            
+        # Récupérer les données du frontend
+        data = request.get_json()
+        print(f"Données reçues: {data}")  # Journal
+        if not data or 'questions' not in data:
+            return jsonify({"status": "error", "message": "Aucune donnée candidate fournie"}), 400
+
+        # Créer un DataFrame
+        candidates = pd.DataFrame(data['questions'])
+        print(f"Candidates DataFrame:\n{candidates}")  # Journal
+        if candidates.empty:
+            return jsonify({"status": "info", "message": "Aucune candidate à intégrer"}), 200
+
+        # Vérifier les colonnes requises
+        required_columns = ['category', 'question', 'answer', 'url']
+        if not all(col in candidates.columns for col in required_columns):
+            return jsonify({"status": "error", "message": "Colonnes manquantes dans les candidates"}), 400
+
+        # Intégrer les candidates
+        integrate_candidates(candidates)
+
+        # Extraire les catégories pour la mise à jour des modèles
+        categories = candidates['category'].tolist()
+        print(f"Catégories extraites: {categories}")  # Journal
+
+        # Mettre à jour les modèles
+        update_models(categories)
+
+        return jsonify({"status": "success", "message": "Candidates intégrées avec succès"}), 200
     except Exception as e:
-        print(f"Error integrating validated questions: {e}")
+        print(f"Erreur lors de l'intégration: {e}")
         return jsonify({"status": "error", "message": f"Erreur: {str(e)}"}), 500
     
-
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
