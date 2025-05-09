@@ -73,7 +73,7 @@ function App() {
   const theme = createTheme({
     palette: {
       mode: mode,
-      primary: { main: "#26A69A" },
+      primary: { main: "#3a86ff" },
       secondary: { main: "#FF6F61" },
       tertiary: { main: "#D4E157" },
       background: {

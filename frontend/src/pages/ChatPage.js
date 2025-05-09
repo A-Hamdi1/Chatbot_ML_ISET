@@ -12,6 +12,7 @@ import {
   Snackbar,
   CircularProgress,
   Button,
+  Grid,
 } from "@mui/material";
 import {
   Send,
@@ -337,7 +338,7 @@ function ChatPage({ sessions, setSessions }) {
       sx={{
         display: "flex",
         flexDirection: "column",
-        height: "calc(100vh - 84px)",
+        height: "calc(95vh - 84px)",
         maxWidth: "1200px",
         mx: "auto",
         my: 2,
@@ -436,16 +437,12 @@ function ChatPage({ sessions, setSessions }) {
                   >
                     <Avatar
                       sx={{
-                        bgcolor: "background.default",
-                        color: "primary.main",
                         mr: 1,
                         width: 32,
                         height: 32,
-                        fontSize: "0.875rem",
                       }}
-                    >
-                      AI
-                    </Avatar>
+                      src="/assistant-avatar.png"
+                    />
                     <Box>
                       <Paper
                         elevation={0}
@@ -545,111 +542,130 @@ function ChatPage({ sessions, setSessions }) {
           </Box>
         )}
       </Box>
-
-      {/* Shortcuts Chips */}
       {/* Shortcuts Chips */}
       <Box
         sx={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: 1,
           p: 2,
           borderTop: "1px solid",
           borderColor: "divider",
-          bgcolor: "background.paper", // Utilise background.paper pour s'adapter au mode clair/sombre
-          justifyContent: "center",
+          bgcolor: "background.paper",
         }}
       >
-        <Button
-          variant="contained"
-          onClick={() => sendShortcut("/horaires")}
+        <Box
           sx={{
-            borderRadius: "20px",
-            bgcolor: "primary.main", // Utilise primary.main pour Horaires
-            color: "white",
-            px: 2,
-            py: 1,
             display: "flex",
-            alignItems: "center",
-            gap: 1,
-            "&:hover": { bgcolor: "primary.dark" },
+            justifyContent: "center",
+            width: "100%",
           }}
-          startIcon={<AccessTime />}
         >
-          Horaires
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() => sendShortcut("/contact")}
-          sx={{
-            borderRadius: "20px",
-            bgcolor: "secondary.main", // Utilise secondary.main pour Contact
-            color: "white",
-            px: 2,
-            py: 1,
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            "&:hover": { bgcolor: "secondary.dark" },
-          }}
-          startIcon={<Phone />}
-        >
-          Contact
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() => sendShortcut("/inscription")}
-          sx={{
-            borderRadius: "20px",
-            bgcolor: "warning.main", // Utilise warning.main pour Inscription
-            color: "white", // Texte noir pour contraste sur jaune
-            px: 2,
-            py: 1,
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            "&:hover": { bgcolor: "warning.dark" },
-          }}
-          startIcon={<Description />}
-        >
-          Inscription
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() => sendShortcut("/bibliotheque")}
-          sx={{
-            borderRadius: "20px",
-            bgcolor: "success.main", // Utilise success.main pour Bibliothèque
-            color: "white",
-            px: 2,
-            py: 1,
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            "&:hover": { bgcolor: "success.dark" },
-          }}
-          startIcon={<LocalLibrary />}
-        >
-          Bibliothèque
-        </Button>
-        <Button
-          variant="contained"
-          onClick={() => sendShortcut("/examens")}
-          sx={{
-            borderRadius: "20px",
-            bgcolor: "info.main",
-            color: "white",
-            px: 2,
-            py: 1,
-            display: "flex",
-            alignItems: "center",
-            gap: 1,
-            "&:hover": { bgcolor: "info.dark" },
-          }}
-          startIcon={<Book />}
-        >
-          Examens
-        </Button>
+          <Grid container spacing={1} sx={{ maxWidth: "1000px" }}>
+            <Grid item xs>
+              <Button
+                variant="contained"
+                onClick={() => sendShortcut("/horaires")}
+                sx={{
+                  borderRadius: "20px",
+                  bgcolor: "primary.main",
+                  color: "white",
+                  px: 3,
+                  py: 1.5,
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  "&:hover": { bgcolor: "primary.dark" },
+                }}
+                startIcon={<AccessTime />}
+              >
+                Horaires
+              </Button>
+            </Grid>
+            <Grid item xs>
+              <Button
+                variant="contained"
+                onClick={() => sendShortcut("/contact")}
+                sx={{
+                  borderRadius: "20px",
+                  bgcolor: "secondary.main",
+                  color: "white",
+                  px: 3,
+                  py: 1.5,
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  "&:hover": { bgcolor: "secondary.dark" },
+                }}
+                startIcon={<Phone />}
+              >
+                Contact
+              </Button>
+            </Grid>
+            <Grid item xs>
+              <Button
+                variant="contained"
+                onClick={() => sendShortcut("/inscription")}
+                sx={{
+                  borderRadius: "20px",
+                  bgcolor: "warning.main",
+                  color: "white",
+                  px: 3,
+                  py: 1.5,
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  "&:hover": { bgcolor: "warning.dark" },
+                }}
+                startIcon={<Description />}
+              >
+                Inscription
+              </Button>
+            </Grid>
+            <Grid item xs>
+              <Button
+                variant="contained"
+                onClick={() => sendShortcut("/bibliotheque")}
+                sx={{
+                  borderRadius: "20px",
+                  bgcolor: "success.main",
+                  color: "white",
+                  px: 3,
+                  py: 1.5,
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  "&:hover": { bgcolor: "success.dark" },
+                }}
+                startIcon={<LocalLibrary />}
+              >
+                Bibliothèque
+              </Button>
+            </Grid>
+            <Grid item xs>
+              <Button
+                variant="contained"
+                onClick={() => sendShortcut("/examens")}
+                sx={{
+                  borderRadius: "20px",
+                  bgcolor: "info.main",
+                  color: "white",
+                  px: 3,
+                  py: 1.5,
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  "&:hover": { bgcolor: "info.dark" },
+                }}
+                startIcon={<Book />}
+              >
+                Examens
+              </Button>
+            </Grid>
+          </Grid>
+        </Box>
       </Box>
 
       {/* Suggestions chips */}

@@ -21,15 +21,14 @@ import {
   Fade,
 } from "@mui/material";
 import {
-  BarChart,
-  Info,
-  Add,
-  Share,
-  Delete,
-  Compare,
+  InsertChart, // Remplacé BarChart
+  InfoOutlined, // Remplacé Info
+  AddCircleOutline, // Remplacé Add
+  ShareOutlined, // Remplacé Share
+  DeleteOutline, // Remplacé Delete
+  CompareArrows, // Remplacé Compare
   ChevronLeft,
-  Folder,
-  Chat,
+  FolderOutlined, // Remplacé Folder
 } from "@mui/icons-material";
 import Slide from "@mui/material/Slide";
 import axios from "axios";
@@ -187,7 +186,7 @@ function Sidebar({
           <Button
             variant="contained"
             fullWidth
-            startIcon={<Add />}
+            startIcon={<AddCircleOutline />}
             onClick={startNewChat}
             sx={{
               borderRadius: "12px",
@@ -214,7 +213,7 @@ function Sidebar({
               }}
             >
               <ListItemIcon>
-                <BarChart sx={{ color: "primary.main" }} />
+                <InsertChart sx={{ color: "primary.main" }} />
               </ListItemIcon>
               <ListItemText
                 primary="Statistiques"
@@ -234,7 +233,7 @@ function Sidebar({
               }}
             >
               <ListItemIcon>
-                <Compare sx={{ color: "primary.main" }} />
+                <CompareArrows sx={{ color: "primary.main" }} />
               </ListItemIcon>
               <ListItemText
                 primary="Métriques Embeddings"
@@ -254,7 +253,7 @@ function Sidebar({
               }}
             >
               <ListItemIcon>
-                <Info sx={{ color: "primary.main" }} />
+                <InfoOutlined sx={{ color: "primary.main" }} />
               </ListItemIcon>
               <ListItemText
                 primary="À propos"
@@ -273,7 +272,7 @@ function Sidebar({
               }}
             >
               <ListItemIcon>
-                <Share sx={{ color: "primary.main" }} />
+                <ShareOutlined sx={{ color: "primary.main" }} />
               </ListItemIcon>
               <ListItemText
                 primary="Partager Chat"
@@ -286,7 +285,7 @@ function Sidebar({
         <Divider sx={{ my: 1 }} />
         
         <Box sx={{ px: 2, py: 1.5, display: "flex", alignItems: "center" }}>
-          <Folder sx={{ color: "secondary.main", mr: 1 }} />
+          <FolderOutlined sx={{ color: "secondary.main", mr: 1 }} />
           <Typography
             variant="subtitle1"
             sx={{ fontWeight: 500, color: "text.primary" }}
@@ -324,14 +323,11 @@ function Sidebar({
                     <Avatar 
                       sx={{ 
                         mr: 2, 
-                        bgcolor: "primary.lighter", 
-                        color: "primary.dark",
-                        width: 40,
-                        height: 40
+                        width: 30,
+                        height: 30
                       }}
-                    >
-                      <Chat fontSize="small" />
-                    </Avatar>
+                      src="/lettre.png"
+                    />
                     <ListItemText
                       primary={getSessionPreview(session)}
                       secondary={formatDate(session.date)}
@@ -361,7 +357,7 @@ function Sidebar({
                           }
                         }}
                       >
-                        <Delete fontSize="small" />
+                        <DeleteOutline fontSize="small" />
                       </IconButton>
                     </Tooltip>
                   </ListItemButton>

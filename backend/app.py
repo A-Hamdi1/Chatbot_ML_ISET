@@ -161,19 +161,19 @@ def metrics():
 @app.route('/about')
 def about():
     return jsonify({
-        "title": "À propos de Chatbot ISET",
-        "description": "Ce chatbot a été développé dans le cadre du mini-projet Machine Learning pour le cours DSIR 12, offrant des réponses rapides et intelligentes aux étudiants de l'ISET.",
+        "title": "Chatbot ISET SFAX",
+        "description": "Ce chatbot a été développé dans le cadre du mini-projet de Machine Learning du cours DSIR 12 pour aider les étudiants de l’ISET. Il utilise des techniques d’apprentissage automatique pour comprendre les questions et y répondre de manière claire et adaptée au contexte académique. Son objectif est de faciliter l’accès à l’information, favoriser l’autonomie et enrichir l’expérience d’apprentissage des étudiants.",
         "features": [
-            "⚙️ Traitement du langage naturel avec NLTK",
-            "📊 Classification avec Naive Bayes et KNN",
-            "📝 Embeddings avec TF-IDF, Word2Vec, et FastText",
-            "🔍 Moteur de recherche avec Whoosh",
-            "🌐 Support multilingue (français et anglais)",
-            "💡 Suggestions proactives selon le contexte",
-            "📚 Auto-apprentissage basé sur les nouvelles questions",
-            "⭐ Système d’évaluation des réponses",
-            "📜 Gestion des sessions de chat avec historique",
-            "🎙️ Entrée vocale via reconnaissance vocale"
+            "Traitement du langage naturel avec NLTK",
+            "Classification avec Naive Bayes et KNN",
+            "Embeddings avec TF-IDF, Word2Vec, et FastText",
+            "Moteur de recherche avec Whoosh",
+            "Support multilingue (français et anglais)",
+            "Suggestions proactives selon le contexte",
+            "Auto-apprentissage basé sur les nouvelles questions",
+            "Système d’évaluation des réponses",
+            "Gestion des sessions de chat avec historique",
+            "Entrée vocale via reconnaissance vocale"
         ]
     })
 
