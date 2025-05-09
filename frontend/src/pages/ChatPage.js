@@ -1,18 +1,34 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
-  Container,
+  Box,
   TextField,
   IconButton,
-  Box,
   Typography,
   Avatar,
   Chip,
-  Card,
-  CardContent,
+  Paper,
+  InputAdornment,
   Fade,
   Snackbar,
+  CircularProgress,
+  Button,
 } from "@mui/material";
-import { Send, ThumbUp, ThumbDown, ContentCopy, Mic, MicOff } from "@mui/icons-material";
+import {
+  Send,
+  ThumbUp,
+  ThumbDown,
+  ContentCopy,
+  Mic,
+  MicOff,
+  InsertEmoticon,
+  AttachFile,
+  AccessTime,
+  Phone,
+  Description,
+  LocalLibrary,
+  Book,
+} from "@mui/icons-material";
+
 import Slide from "@mui/material/Slide";
 import axios from "axios";
 
@@ -27,6 +43,7 @@ function ChatPage({ sessions, setSessions }) {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [speechRecognition, setSpeechRecognition] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const chatBoxRef = useRef(null);
 
   // Memoize handleSend for text input
@@ -34,6 +51,7 @@ function ChatPage({ sessions, setSessions }) {
     if (!input.trim()) return;
     const newMessage = { user: input, timestamp: new Date().toISOString() };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
+    setIsLoading(true);
 
     try {
       const response = await axios.post("http://localhost:5000/api/chat", {
@@ -57,6 +75,8 @@ function ChatPage({ sessions, setSessions }) {
       console.error("Error sending message:", error);
       setSnackbarMessage("Erreur lors de l'envoi du message");
       setSnackbarOpen(true);
+    } finally {
+      setIsLoading(false);
     }
     setInput("");
   }, [input, sessionId, messages, setSessions]);
@@ -71,8 +91,12 @@ function ChatPage({ sessions, setSessions }) {
       setVoiceInput("");
       return;
     }
-    const newMessage = { user: voiceInput, timestamp: new Date().toISOString() };
+    const newMessage = {
+      user: voiceInput,
+      timestamp: new Date().toISOString(),
+    };
     setMessages((prevMessages) => [...prevMessages, newMessage]);
+    setIsLoading(true);
 
     try {
       const response = await axios.post("http://localhost:5000/api/chat", {
@@ -96,6 +120,8 @@ function ChatPage({ sessions, setSessions }) {
       console.error("Error sending voice message:", error);
       setSnackbarMessage("Erreur lors de l'envoi du message vocal");
       setSnackbarOpen(true);
+    } finally {
+      setIsLoading(false);
     }
     setVoiceInput("");
   }, [voiceInput, sessionId, messages, setSessions]);
@@ -128,50 +154,60 @@ function ChatPage({ sessions, setSessions }) {
       setSnackbarOpen(true);
     }
   }, []);
-  const sendShortcut = useCallback(async (cmd) => {
-    if (!cmd.trim()) {
-      setSnackbarMessage("Commande vide");
-      setSnackbarOpen(true);
-      return;
-    }
-  
-    console.log("Sending shortcut:", cmd, "with sessionId:", sessionId); 
-  
-    const newMessage = { user: cmd, timestamp: new Date().toISOString() }; 
-    setMessages((prevMessages) => [...prevMessages, newMessage]);
-  
-    try {
-      const payload = {
-        message: cmd, // <-- On garde le slash ici
-        session_id: sessionId || null,
-        source: "shortcut",
-      };
-      const response = await axios.post("http://localhost:5000/api/chat", payload);
-      const { chat_entry, session_id } = response.data;
-  
-      const updatedMessages = [...messages, chat_entry];
-      setMessages(updatedMessages);
-      setSessionId(session_id);
-  
-      setSessions((prevSessions) => {
-        const updatedSessions = prevSessions.map((session) =>
-          session.id === session_id
-            ? { ...session, messages: updatedMessages }
-            : session
+
+  const sendShortcut = useCallback(
+    async (cmd) => {
+      if (!cmd.trim()) {
+        setSnackbarMessage("Commande vide");
+        setSnackbarOpen(true);
+        return;
+      }
+
+      console.log("Sending shortcut:", cmd, "with sessionId:", sessionId);
+
+      const newMessage = { user: cmd, timestamp: new Date().toISOString() };
+      setMessages((prevMessages) => [...prevMessages, newMessage]);
+      setIsLoading(true);
+
+      try {
+        const payload = {
+          message: cmd,
+          session_id: sessionId || null,
+          source: "shortcut",
+        };
+        const response = await axios.post(
+          "http://localhost:5000/api/chat",
+          payload
         );
-        return updatedSessions;
-      });
-    } catch (error) {
-      console.error("Error sending shortcut:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        "Erreur lors de l'envoi du raccourci. Vérifiez la connexion au serveur.";
-      setSnackbarMessage(errorMessage);
-      setSnackbarOpen(true);
-      setMessages((prevMessages) => prevMessages.slice(0, -1));
-    }
-  }, [sessionId, messages, setSessions]);
- 
+        const { chat_entry, session_id } = response.data;
+
+        const updatedMessages = [...messages, chat_entry];
+        setMessages(updatedMessages);
+        setSessionId(session_id);
+
+        setSessions((prevSessions) => {
+          const updatedSessions = prevSessions.map((session) =>
+            session.id === session_id
+              ? { ...session, messages: updatedMessages }
+              : session
+          );
+          return updatedSessions;
+        });
+      } catch (error) {
+        console.error("Error sending shortcut:", error);
+        const errorMessage =
+          error.response?.data?.message ||
+          "Erreur lors de l'envoi du raccourci. Vérifiez la connexion au serveur.";
+        setSnackbarMessage(errorMessage);
+        setSnackbarOpen(true);
+        setMessages((prevMessages) => prevMessages.slice(0, -1));
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [sessionId, messages, setSessions]
+  );
+
   // Check microphone permission
   useEffect(() => {
     if (navigator.permissions && navigator.permissions.query) {
@@ -179,7 +215,9 @@ function ChatPage({ sessions, setSessions }) {
         .query({ name: "microphone" })
         .then((permissionStatus) => {
           if (permissionStatus.state === "denied") {
-            setSnackbarMessage("L'accès au microphone est refusé. Veuillez autoriser l'accès dans les paramètres de votre navigateur.");
+            setSnackbarMessage(
+              "L'accès au microphone est refusé. Veuillez autoriser l'accès dans les paramètres de votre navigateur."
+            );
             setSnackbarOpen(true);
           }
         })
@@ -191,24 +229,32 @@ function ChatPage({ sessions, setSessions }) {
 
   // Initialize Speech Recognition
   useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       const recognition = new SpeechRecognition();
-      recognition.lang = "fr-FR"; // Default to French
-      recognition.interimResults = true; // Capture interim results
-      recognition.continuous = true; // Keep listening until stopped
+      recognition.lang = "fr-FR";
+      recognition.interimResults = true;
+      recognition.continuous = true;
 
       recognition.onresult = (event) => {
         const transcript = Array.from(event.results)
           .map((result) => result[0].transcript)
           .join("");
-        console.log("SpeechRecognition onresult:", transcript, "isFinal:", event.results[0].isFinal);
+        console.log(
+          "SpeechRecognition onresult:",
+          transcript,
+          "isFinal:",
+          event.results[0].isFinal
+        );
         setVoiceInput(transcript);
       };
 
       recognition.onerror = (event) => {
         console.error("SpeechRecognition error:", event.error);
-        setSnackbarMessage("Erreur lors de la reconnaissance vocale : " + event.error);
+        setSnackbarMessage(
+          "Erreur lors de la reconnaissance vocale : " + event.error
+        );
         setSnackbarOpen(true);
         setIsRecording(false);
         setVoiceInput("");
@@ -222,7 +268,9 @@ function ChatPage({ sessions, setSessions }) {
       setSpeechRecognition(recognition);
     } else {
       console.warn("Speech Recognition API not supported in this browser.");
-      setSnackbarMessage("La reconnaissance vocale n'est pas supportée par votre navigateur.");
+      setSnackbarMessage(
+        "La reconnaissance vocale n'est pas supportée par votre navigateur."
+      );
       setSnackbarOpen(true);
     }
   }, []);
@@ -256,7 +304,9 @@ function ChatPage({ sessions, setSessions }) {
   }, [sessionId, sessions, setSessions]);
 
   useEffect(() => {
-    chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const toggleRecording = useCallback(() => {
@@ -265,106 +315,150 @@ function ChatPage({ sessions, setSessions }) {
       console.log("Stopping recording");
       speechRecognition.stop();
       setIsRecording(false);
-      handleVoiceSend(); // Send transcription when stopping
+      handleVoiceSend();
     } else {
       console.log("Starting recording");
-      setVoiceInput(""); // Clear previous transcription
+      setVoiceInput("");
       speechRecognition.start();
       setIsRecording(true);
     }
   }, [isRecording, speechRecognition, handleVoiceSend]);
 
+  const formatTime = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
-    <>
-      <Container maxWidth="md" sx={{ mt: 2, mb: 2 }}>
-        <Box
-          ref={chatBoxRef}
-          sx={{
-            height: "70vh",
-            overflowY: "auto",
-            mb: 2,
-            p: 2,
-            bgcolor: "background.default",
-            borderRadius: 4,
-          }}
-        >
-          {messages.length === 0 && (
-            <Fade in={true}>
-              <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                <Avatar
-                  src="/assistant-avatar.png"
-                  alt="Assistant"
-                  sx={{ bgcolor: "primary.main" }}
-                />
-                <Typography sx={{ ml: 2, color: "text.primary" }}>
-                  Bonjour ! Posez-moi une question ou utilisez un raccourci
-                  ci-dessous.
-                </Typography>
-              </Box>
-            </Fade>
-          )}
-          {messages.map((msg, index) => (
-            <Fade key={index} in={true} timeout={500}>
-              <Box>
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        height: "calc(100vh - 84px)",
+        maxWidth: "1200px",
+        mx: "auto",
+        my: 2,
+        borderRadius: "16px",
+        overflow: "hidden",
+        boxShadow: "0 4px 30px rgba(0, 0, 0, 0.1)",
+        bgcolor: "background.paper",
+      }}
+    >
+      <Box
+        ref={chatBoxRef}
+        sx={{
+          flexGrow: 1,
+          overflowY: "auto",
+          p: 3,
+          display: "flex",
+          flexDirection: "column",
+          gap: 3,
+        }}
+      >
+        {messages.length === 0 && (
+          <Fade in={true}>
+            <Box sx={{ textAlign: "center", py: 8 }}>
+              <Typography
+                variant="h5"
+                sx={{ fontWeight: 500, mb: 2, color: "text.secondary" }}
+              >
+                Commencez une nouvelle conversation
+              </Typography>
+              <Typography sx={{ color: "text.secondary" }}>
+                Posez une question ou utilisez un raccourci ci-dessous
+              </Typography>
+            </Box>
+          </Fade>
+        )}
+
+        {messages.map((msg, index) => (
+          <Fade key={index} in={true} timeout={500}>
+            <Box>
+              {/* User Message */}
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "flex-end",
+                  mb: msg.bot ? 1 : 3,
+                }}
+              >
                 <Box
-                  sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}
+                  sx={{
+                    display: "flex",
+                    alignItems: "flex-end",
+                    maxWidth: "70%",
+                  }}
                 >
-                  <Card
+                  <Paper
+                    elevation={0}
                     sx={{
-                      maxWidth: "70%",
+                      p: 2,
+                      borderRadius: "16px 16px 0 16px",
                       bgcolor: "primary.main",
                       color: "white",
-                      borderRadius: 4,
-                      boxShadow: 2,
+                      mr: 1,
                     }}
                   >
-                    <CardContent>
-                      <Typography>{msg.user}</Typography>
-                      <Box
-                        sx={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          mt: 1,
-                        }}
-                      >
-                        <Typography variant="caption">
-                          {new Date(msg.timestamp).toLocaleString("fr-FR")}
-                        </Typography>
-                        <IconButton
-                          onClick={() => copyText(msg.user)}
-                          size="small"
-                        >
-                          <ContentCopy
-                            fontSize="small"
-                            sx={{ color: "white" }}
-                          />
-                        </IconButton>
-                      </Box>
-                    </CardContent>
-                  </Card>
+                    <Typography variant="body1">{msg.user}</Typography>
+                  </Paper>
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "text.secondary",
+                      alignSelf: "flex-end",
+                      mb: 0.5,
+                      mr: 1,
+                    }}
+                  >
+                    {formatTime(msg.timestamp)}
+                  </Typography>
                 </Box>
-                {msg.bot && (
+              </Box>
+
+              {/* Bot Response */}
+              {msg.bot && (
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "flex-start",
+                    mb: 3,
+                  }}
+                >
                   <Box
-                    sx={{ display: "flex", alignItems: "flex-start", mb: 2 }}
+                    sx={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      maxWidth: "70%",
+                    }}
                   >
                     <Avatar
-                      src="/assistant-avatar.png"
-                      alt="Assistant"
-                      sx={{ bgcolor: "primary.main" }}
-                    />
-                    <Card
                       sx={{
-                        maxWidth: "70%",
-                        bgcolor: "background.paper",
-                        color: "text.primary",
-                        borderRadius: 4,
-                        boxShadow: 2,
-                        ml: 2,
+                        bgcolor: "background.default",
+                        color: "primary.main",
+                        mr: 1,
+                        width: 32,
+                        height: 32,
+                        fontSize: "0.875rem",
                       }}
                     >
-                      <CardContent>
-                        <Typography>{msg.bot.answer}</Typography>
+                      AI
+                    </Avatar>
+                    <Box>
+                      <Paper
+                        elevation={0}
+                        sx={{
+                          p: 2,
+                          borderRadius: "16px 16px 16px 0",
+                          bgcolor: "background.default",
+                          mb: 0.5,
+                        }}
+                      >
+                        <Typography variant="body1">
+                          {msg.bot.answer}
+                        </Typography>
                         {msg.bot.url && (
                           <Typography>
                             <a
@@ -378,233 +472,291 @@ function ChatPage({ sessions, setSessions }) {
                           </Typography>
                         )}
                         {msg.bot.method && (
-                          <Typography variant="caption">
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              display: "block",
+                              color: "text.secondary",
+                              mt: 1,
+                            }}
+                          >
                             Méthode: {msg.bot.method} (Similarité:{" "}
                             {(msg.bot.similarity * 100).toFixed(2)}%)
                           </Typography>
                         )}
-                        <Typography variant="caption" display="block">
-                          {new Date(msg.timestamp).toLocaleString("fr-FR")}
-                        </Typography>
-                        <Box
-                          sx={{ mt: 1, display: "flex", alignItems: "center" }}
+                      </Paper>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          ml: 1,
+                        }}
+                      >
+                        <Typography
+                          variant="caption"
+                          sx={{ color: "text.secondary", mr: 1 }}
                         >
-                          <Typography variant="caption" sx={{ mr: 1 }}>
-                            Utile ?
-                          </Typography>
-                          <IconButton
-                            onClick={() => handleRate(msg.user, true)}
-                            size="small"
-                          >
-                            <ThumbUp
-                              fontSize="small"
-                              sx={{ color: "text.primary" }}
-                            />
-                          </IconButton>
-                          <IconButton
-                            onClick={() => handleRate(msg.user, false)}
-                            size="small"
-                          >
-                            <ThumbDown
-                              fontSize="small"
-                              sx={{ color: "text.primary" }}
-                            />
-                          </IconButton>
-                        </Box>
-                      </CardContent>
-                    </Card>
+                          {formatTime(msg.timestamp)}
+                        </Typography>
+                        <IconButton
+                          onClick={() => handleRate(msg.user, true)}
+                          size="small"
+                          sx={{
+                            color: "text.secondary",
+                            p: 0.5,
+                            "&:hover": { color: "success.main" },
+                          }}
+                        >
+                          <ThumbUp fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          onClick={() => handleRate(msg.user, false)}
+                          size="small"
+                          sx={{
+                            color: "text.secondary",
+                            p: 0.5,
+                            "&:hover": { color: "error.main" },
+                          }}
+                        >
+                          <ThumbDown fontSize="small" />
+                        </IconButton>
+                        <IconButton
+                          onClick={() => copyText(msg.bot.answer)}
+                          size="small"
+                          sx={{
+                            color: "text.secondary",
+                            p: 0.5,
+                            "&:hover": { color: "primary.main" },
+                          }}
+                        >
+                          <ContentCopy fontSize="small" />
+                        </IconButton>
+                      </Box>
+                    </Box>
                   </Box>
-                )}
-              </Box>
-            </Fade>
-          ))}
-        </Box>
-        <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                </Box>
+              )}
+            </Box>
+          </Fade>
+        ))}
+        {isLoading && (
+          <Box sx={{ display: "flex", justifyContent: "center", my: 2 }}>
+            <CircularProgress size={24} color="primary" />
+          </Box>
+        )}
+      </Box>
+
+      {/* Shortcuts Chips */}
+      {/* Shortcuts Chips */}
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 1,
+          p: 2,
+          borderTop: "1px solid",
+          borderColor: "divider",
+          bgcolor: "background.paper", // Utilise background.paper pour s'adapter au mode clair/sombre
+          justifyContent: "center",
+        }}
+      >
+        <Button
+          variant="contained"
+          onClick={() => sendShortcut("/horaires")}
+          sx={{
+            borderRadius: "20px",
+            bgcolor: "primary.main", // Utilise primary.main pour Horaires
+            color: "white",
+            px: 2,
+            py: 1,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            "&:hover": { bgcolor: "primary.dark" },
+          }}
+          startIcon={<AccessTime />}
+        >
+          Horaires
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => sendShortcut("/contact")}
+          sx={{
+            borderRadius: "20px",
+            bgcolor: "secondary.main", // Utilise secondary.main pour Contact
+            color: "white",
+            px: 2,
+            py: 1,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            "&:hover": { bgcolor: "secondary.dark" },
+          }}
+          startIcon={<Phone />}
+        >
+          Contact
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => sendShortcut("/inscription")}
+          sx={{
+            borderRadius: "20px",
+            bgcolor: "warning.main", // Utilise warning.main pour Inscription
+            color: "white", // Texte noir pour contraste sur jaune
+            px: 2,
+            py: 1,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            "&:hover": { bgcolor: "warning.dark" },
+          }}
+          startIcon={<Description />}
+        >
+          Inscription
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => sendShortcut("/bibliotheque")}
+          sx={{
+            borderRadius: "20px",
+            bgcolor: "success.main", // Utilise success.main pour Bibliothèque
+            color: "white",
+            px: 2,
+            py: 1,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            "&:hover": { bgcolor: "success.dark" },
+          }}
+          startIcon={<LocalLibrary />}
+        >
+          Bibliothèque
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => sendShortcut("/examens")}
+          sx={{
+            borderRadius: "20px",
+            bgcolor: "info.main",
+            color: "white",
+            px: 2,
+            py: 1,
+            display: "flex",
+            alignItems: "center",
+            gap: 1,
+            "&:hover": { bgcolor: "info.dark" },
+          }}
+          startIcon={<Book />}
+        >
+          Examens
+        </Button>
+      </Box>
+
+      {/* Suggestions chips */}
+      {messages.length > 0 &&
+        messages[messages.length - 1].bot?.suggestions?.length > 0 && (
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 1,
+              px: 2,
+              pb: 2,
+            }}
+          >
+            {messages[messages.length - 1].bot.suggestions.map(
+              (suggestion, index) => (
+                <Chip
+                  key={index}
+                  label={suggestion.label}
+                  onClick={() => sendShortcut(suggestion.text)}
+                  size="medium"
+                  sx={{
+                    borderRadius: "16px",
+                    bgcolor: "secondary.light",
+                    color: "secondary.contrastText",
+                    px: 1,
+                  }}
+                />
+              )
+            )}
+          </Box>
+        )}
+
+      {/* Input Area */}
+      <Box
+        sx={{
+          p: 2,
+          borderTop: "1px solid",
+          borderColor: "divider",
+          bgcolor: "background.paper",
+        }}
+      >
+        <Box sx={{ display: "flex", alignItems: "center" }}>
+          <IconButton size="medium" sx={{ color: "text.secondary" }}>
+            <InsertEmoticon />
+          </IconButton>
+          <IconButton size="medium" sx={{ color: "text.secondary" }}>
+            <AttachFile />
+          </IconButton>
           <TextField
             fullWidth
-            multiline
-            rows={2}
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Posez votre question..."
+            placeholder="Écrivez votre message..."
             variant="outlined"
+            size="medium"
             onKeyPress={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 handleSend();
               }
             }}
-            sx={{
-              bgcolor: "background.paper",
-              borderRadius: 4,
-            }}
-          />
-          <IconButton
-            onClick={toggleRecording}
-            disabled={!speechRecognition}
-            sx={{
-              ml: 1,
-              bgcolor: isRecording ? "error.main" : "secondary.main",
-              color: "white",
-              "&:hover": { bgcolor: isRecording ? "error.dark" : "secondary.dark" },
-              width: 56,
-              height: 56,
-            }}
-          >
-            {isRecording ? <MicOff /> : <Mic />}
-          </IconButton>
-          <IconButton
-            onClick={handleSend}
-            sx={{
-              ml: 1,
-              bgcolor: "primary.main",
-              color: "white",
-              "&:hover": { bgcolor: "primary.dark" },
-              width: 56,
-              height: 56,
-            }}
-          >
-            <Send />
-          </IconButton>
-        </Box>
-        <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 1,
-            mb: 2,
-            width: "92%",
-          }}
-        >
-          <Chip
-            icon={
-              <span role="img" aria-label="clock">
-                🕒
-              </span>
-            }
-            label="Horaires"
-            onClick={() => sendShortcut("/horaires")}
-            clickable
-            sx={{
-              borderRadius: "16px",
-              bgcolor: "primary.main",
-              color: "white",
-              "&:hover": { bgcolor: "primary.dark" },
-              height: "40px",
-              fontSize: "1rem",
-              flex: "1 1 auto",
-              minWidth: "100px",
-            }}
-          />
-          <Chip
-            icon={
-              <span role="img" aria-label="contact">
-                📞
-              </span>
-            }
-            label="Contact"
-            onClick={() => sendShortcut("/contact")}
-            clickable
-            sx={{
-              borderRadius: "16px",
-              bgcolor: "primary.main",
-              color: "white",
-              "&:hover": { bgcolor: "primary.dark" },
-              height: "40px",
-              fontSize: "1rem",
-              flex: "1 1 auto",
-              minWidth: "100px",
-            }}
-          />
-          <Chip
-            icon={
-              <span role="img" aria-label="inscription">
-                📝
-              </span>
-            }
-            label="Inscription"
-            onClick={() => sendShortcut("/inscription")}
-            clickable
-            sx={{
-              borderRadius: "16px",
-              bgcolor: "primary.main",
-              color: "white",
-              "&:hover": { bgcolor: "primary.dark" },
-              height: "40px",
-              fontSize: "1rem",
-              flex: "1 1 auto",
-              minWidth: "100px",
-            }}
-          />
-          <Chip
-            icon={
-              <span role="img" aria-label="bibliotheque">
-                📚
-              </span>
-            }
-            label="Bibliothèque"
-            onClick={() => sendShortcut("/bibliotheque")}
-            clickable
-            sx={{
-              borderRadius: "16px",
-              bgcolor: "primary.main",
-              color: "white",
-              "&:hover": { bgcolor: "primary.dark" },
-              height: "40px",
-              fontSize: "1rem",
-              flex: "1 1 auto",
-              minWidth: "100px",
-            }}
-          />
-          <Chip
-            icon={
-              <span role="img" aria-label="examens">
-                📖
-              </span>
-            }
-            label="Examens"
-            onClick={() => sendShortcut("/examens")}
-            clickable
-            sx={{
-              borderRadius: "16px",
-              bgcolor: "primary.main",
-              color: "white",
-              "&:hover": { bgcolor: "primary.dark" },
-              height: "40px",
-              fontSize: "1rem",
-              flex: "1 1 auto",
-              minWidth: "100px",
+            InputProps={{
+              sx: {
+                borderRadius: "24px",
+                bgcolor: "background.default",
+                "& .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "transparent",
+                },
+                "&:hover .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "transparent",
+                },
+                "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
+                  borderColor: "transparent",
+                },
+              },
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={toggleRecording}
+                    disabled={!speechRecognition}
+                    sx={{
+                      color: isRecording ? "error.main" : "text.secondary",
+                    }}
+                  >
+                    {isRecording ? <MicOff /> : <Mic />}
+                  </IconButton>
+                  <IconButton
+                    onClick={handleSend}
+                    disabled={!input.trim()}
+                    sx={{
+                      bgcolor: "primary.main",
+                      color: "white",
+                      "&:hover": { bgcolor: "primary.dark" },
+                      ml: 1,
+                    }}
+                  >
+                    <Send />
+                  </IconButton>
+                </InputAdornment>
+              ),
             }}
           />
         </Box>
-        {messages.length > 0 &&
-          messages[messages.length - 1].bot?.suggestions?.length > 0 && (
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
-              {messages[messages.length - 1].bot.suggestions.map(
-                (suggestion, index) => (
-                  <Box key={index}>
-                    <Chip
-                      icon={
-                        <span role="img" aria-label="suggestion">
-                          💡
-                        </span>
-                      }
-                      label={suggestion.label}
-                      onClick={() => sendShortcut(suggestion.text)}
-                      clickable
-                      sx={{
-                        borderRadius: "16px",
-                        bgcolor: "tertiary.main",
-                        color: "black",
-                        "&:hover": { bgcolor: "tertiary.dark" },
-                      }}
-                    />
-                  </Box>
-                )
-              )}
-            </Box>
-          )}
-      </Container>
+      </Box>
+
+      {/* Snackbar */}
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={3000}
@@ -614,16 +766,17 @@ function ChatPage({ sessions, setSessions }) {
         TransitionComponent={Slide}
         sx={{
           "& .MuiSnackbarContent-root": {
-            backgroundColor: snackbarMessage.startsWith("Erreur") ||
+            backgroundColor:
+              snackbarMessage.startsWith("Erreur") ||
               snackbarMessage.startsWith("Aucun")
-              ? "error.main"
-              : "primary.main",
+                ? "error.main"
+                : "primary.main",
             color: "white",
             borderRadius: "8px",
           },
         }}
       />
-    </>
+    </Box>
   );
 }
 

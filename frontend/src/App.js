@@ -199,7 +199,7 @@ function App() {
                 flexGrow: 1,
                 padding: "16px",
                 marginTop: "64px",
-                marginLeft: drawerOpen ? 280 : 0,
+                marginLeft: drawerOpen ? 80 : 0,
                 transition: "margin-left 0.3s",
               }}
             >

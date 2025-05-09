@@ -27,7 +27,7 @@ ix = create_in("indexdir", schema)
 
 def load_data():
     try:
-        data = pd.read_csv('data/data_option1.csv', encoding='utf-8')
+        data = pd.read_csv('data/data.csv', encoding='utf-8')
         questions = []
         responses = []
         urls = []
