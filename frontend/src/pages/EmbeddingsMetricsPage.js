@@ -290,6 +290,7 @@ function EmbeddingsMetricsPage() {
                       ? "0 4px 20px rgba(0, 0, 0, 0.3)"
                       : "0 4px 20px rgba(0, 0, 0, 0.08)",
                     height: "400px",
+                    width: "560px",
                     overflow: "hidden",
                   }}
                 >
@@ -393,7 +394,7 @@ function EmbeddingsMetricsPage() {
                       ? "0 4px 20px rgba(0, 0, 0, 0.3)"
                       : "0 4px 20px rgba(0, 0, 0, 0.08)",
                     height: "400px",
-                    width: "550px",
+                    width: "560px",
                   }}
                 >
                   <CardContent>

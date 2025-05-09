@@ -1,20 +1,29 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { shareChat } from "./components/Sidebar";
 import {
   CssBaseline,
   AppBar,
   Toolbar,
   Typography,
   IconButton,
+  Box,
+  Avatar,
+  Tooltip,
+  Fade,
 } from "@mui/material";
 import {
   Menu as MenuIcon,
   Brightness4,
+  ScreenShare,
   Brightness7,
+  BarChart,
+  Analytics as AnalyticsIcon,
+  InfoOutline,
 } from "@mui/icons-material";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ChatPage from "./pages/ChatPage";
 import MetricsPage from "./pages/MetricsPage";
@@ -70,6 +79,20 @@ function App() {
     setMode((prevMode) => (prevMode === "light" ? "dark" : "light"));
   };
 
+  // Handle shareChat in AppBar
+  const handleShareChat = async () => {
+    const result = await shareChat();
+    toast[result.success ? "success" : "error"](result.message, {
+      position: "bottom-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: mode,
+    });
+  };
+
   const theme = createTheme({
     palette: {
       mode: mode,
@@ -94,18 +117,34 @@ function App() {
       MuiAppBar: {
         styleOverrides: {
           root: {
-            backgroundColor: mode === "light" ? "#FFFFFF" : "#2D2D2D",
-            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.2)",
+            background:
+              mode === "light"
+                ? "linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)"
+                : "linear-gradient(135deg, #2D2D2D 0%, #202020 100%)",
+            boxShadow:
+              mode === "light"
+                ? "0px 2px 10px rgba(0, 0, 0, 0.1)"
+                : "0px 2px 10px rgba(0, 0, 0, 0.5)",
             color: mode === "light" ? "#212121" : "#E0E0E0",
+            borderBottom:
+              mode === "light"
+                ? "1px solid rgba(0, 0, 0, 0.05)"
+                : "1px solid rgba(255, 255, 255, 0.05)",
           },
         },
       },
       MuiDrawer: {
         styleOverrides: {
           paper: {
-            backgroundColor: mode === "light" ? "#FFFFFF" : "#2D2D2D",
+            background:
+              mode === "light"
+                ? "linear-gradient(180deg, #FFFFFF 0%, #F8F8F8 100%)"
+                : "linear-gradient(180deg, #2D2D2D 0%, #202020 100%)",
             borderRight: "none",
-            boxShadow: "2px 0px 8px rgba(0, 0, 0, 0.2)",
+            boxShadow:
+              mode === "light"
+                ? "2px 0 10px rgba(0, 0, 0, 0.1)"
+                : "2px 0 10px rgba(0, 0, 0, 0.5)",
           },
         },
       },
@@ -114,6 +153,19 @@ function App() {
           root: {
             borderRadius: "20px",
             textTransform: "none",
+            fontWeight: 500,
+            boxShadow: "none",
+            "&:hover": {
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+              transform: "translateY(-1px)",
+              transition: "all 0.2s ease-in-out",
+            },
+          },
+          containedPrimary: {
+            background:
+              mode === "light"
+                ? "linear-gradient(135deg, #3a86ff 0%, #2979ff 100%)"
+                : "linear-gradient(135deg, #3a86ff 0%, #2979ff 100%)",
           },
         },
       },
@@ -152,6 +204,30 @@ function App() {
           }
         `,
       },
+      MuiIconButton: {
+        styleOverrides: {
+          root: {
+            transition: "all 0.2s ease-in-out",
+            "&:hover": {
+              transform: "scale(1.1)",
+              backgroundColor:
+                mode === "light"
+                  ? "rgba(0, 0, 0, 0.04)"
+                  : "rgba(255, 255, 255, 0.04)",
+            },
+          },
+        },
+      },
+      MuiAvatar: {
+        styleOverrides: {
+          root: {
+            boxShadow:
+              mode === "light"
+                ? "0px 2px 6px rgba(0, 0, 0, 0.15)"
+                : "0px 2px 6px rgba(0, 0, 0, 0.3)",
+          },
+        },
+      },
     },
   });
 
@@ -160,32 +236,174 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Router>
-          <AppBar
-            position="fixed"
-            sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
-          >
-            <Toolbar>
-              <IconButton
-                edge="start"
-                color="inherit"
-                onClick={toggleDrawer}
-                sx={{ mr: 2 }}
-              >
-                <MenuIcon />
-              </IconButton>
-              <Typography
-                variant="h6"
-                noWrap
-                component="div"
-                sx={{ flexGrow: 1 }}
-              >
-                Chatbot ISET
-              </Typography>
-              <IconButton onClick={toggleMode} color="inherit">
-                {mode === "light" ? <Brightness4 /> : <Brightness7 />}
-              </IconButton>
-            </Toolbar>
-          </AppBar>
+          <Fade in={true} timeout={800}>
+            <AppBar
+              position="fixed"
+              sx={{
+                zIndex: (theme) => theme.zIndex.drawer + 1,
+                borderRadius: 0,
+                height: "70px",
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <Toolbar>
+                <IconButton
+                  edge="start"
+                  color="inherit"
+                  onClick={toggleDrawer}
+                  sx={{
+                    mr: 2,
+                    backgroundColor:
+                      mode === "light"
+                        ? "rgba(58, 134, 255, 0.08)"
+                        : "rgba(58, 134, 255, 0.15)",
+                    borderRadius: "12px",
+                    "&:hover": {
+                      backgroundColor:
+                        mode === "light"
+                          ? "rgba(58, 134, 255, 0.15)"
+                          : "rgba(58, 134, 255, 0.25)",
+                    },
+                  }}
+                >
+                  <MenuIcon />
+                </IconButton>
+
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: mode === "light" ? "#3a86ff" : "#3a86ff",
+                      width: 38,
+                      height: 38,
+                      mr: 2,
+                      display: { xs: "none", md: "flex" },
+                    }}
+                  >
+                    <span style={{ fontSize: "1.2rem" }}>🤖</span>
+                  </Avatar>
+                  <Typography
+                    variant="h6"
+                    noWrap
+                    component="div"
+                    sx={{
+                      flexGrow: 1,
+                      fontWeight: 600,
+                      background:
+                        mode === "light"
+                          ? "linear-gradient(135deg, #3a86ff 0%, #2979ff 100%)"
+                          : "linear-gradient(135deg, #3a86ff 0%, #2979ff 100%)",
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                    }}
+                  >
+                    Chatbot ISET
+                  </Typography>
+                </Box>
+
+                <Box sx={{ flexGrow: 1 }} />
+
+                <Box
+                  sx={{
+                    display: { xs: "none", md: "flex" },
+                    gap: 1,
+                    alignItems: "center",
+                  }}
+                >
+                  <Tooltip title="Partager">
+                    <IconButton
+                      onClick={handleShareChat}
+                      color="inherit"
+                      sx={{
+                        backgroundColor:
+                          mode === "light"
+                            ? "rgba(0, 0, 0, 0.03)"
+                            : "rgba(255, 255, 255, 0.05)",
+                        borderRadius: "12px",
+                        marginLeft: 1,
+                      }}
+                    >
+                      <ScreenShare />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Embeddings">
+                    <IconButton
+                     component="a"
+                      href="/embeddings-metrics"
+                      color="inherit"
+                      sx={{
+                        backgroundColor:
+                          mode === "light"
+                            ? "rgba(0, 0, 0, 0.03)"
+                            : "rgba(255, 255, 255, 0.05)",
+                        borderRadius: "12px",
+                        marginLeft: 1,
+                      }}
+                    >
+                      <AnalyticsIcon />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="Statistiques">
+                    <IconButton
+                      component="a"
+                      href="/metrics"
+                      color="inherit"
+                      sx={{
+                        backgroundColor:
+                          mode === "light"
+                            ? "rgba(0, 0, 0, 0.03)"
+                            : "rgba(255, 255, 255, 0.05)",
+                        borderRadius: "12px",
+                        marginLeft: 1,
+                      }}
+                    >
+                      <BarChart />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip title="À propos">
+                    <IconButton
+                      component="a"
+                      href="/about"
+                      color="inherit"
+                      sx={{
+                        backgroundColor:
+                          mode === "light"
+                            ? "rgba(0, 0, 0, 0.03)"
+                            : "rgba(255, 255, 255, 0.05)",
+                        borderRadius: "12px",
+                        marginLeft: 1,
+                      }}
+                    >
+                      <InfoOutline />
+                    </IconButton>
+                  </Tooltip>
+
+                  <Tooltip
+                    title={mode === "light" ? "Mode sombre" : "Mode clair"}
+                  >
+                    <IconButton
+                      onClick={toggleMode}
+                      color="inherit"
+                      sx={{
+                        backgroundColor:
+                          mode === "light"
+                            ? "rgba(0, 0, 0, 0.03)"
+                            : "rgba(255, 255, 255, 0.05)",
+                        borderRadius: "12px",
+                        marginLeft: 1,
+                      }}
+                    >
+                      {mode === "light" ? <Brightness4 /> : <Brightness7 />}
+                    </IconButton>
+                  </Tooltip>
+                </Box>
+              </Toolbar>
+            </AppBar>
+          </Fade>
+
           <div style={{ display: "flex" }}>
             <Sidebar
               open={drawerOpen}
@@ -198,9 +416,9 @@ function App() {
               style={{
                 flexGrow: 1,
                 padding: "16px",
-                marginTop: "64px",
+                marginTop: "70px", // Adjusted for taller AppBar
                 marginLeft: drawerOpen ? 80 : 0,
-                transition: "margin-left 0.3s",
+                transition: "margin-left 0.3s ease",
               }}
             >
               <Routes>
