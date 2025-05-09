@@ -66,4 +66,5 @@ instance/
 data/**
 !data/data_option1.csv
 !data/iset_dataset.csv
+!data/data.csv
 
