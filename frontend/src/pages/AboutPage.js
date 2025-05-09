@@ -189,7 +189,7 @@ function AboutPage() {
                     href="/"
                     sx={{
                       bgcolor: "white",
-                      color: isDarkMode ? "#00695C" : "#00796B",
+                      color: isDarkMode ? "#fafcfc" : "#fafcfc",
                       borderRadius: "8px",
                       px: 3,
                       py: 1,
@@ -565,8 +565,24 @@ function AboutPage() {
                           boxShadow: isDarkMode
                             ? "0 4px 14px rgba(0,0,0,0.4)"
                             : "0 4px 14px rgba(0,121,107,0.25)",
+                          color: "#fafcfc",
                           fontWeight: 600,
                           fontSize: "1rem",
+                          transition: "all 0.3s ease",
+
+                          // ✅ Forcer le style même quand disabled
+                          "&.Mui-disabled": {
+                            color: "#fafcfc",
+                            bgcolor:
+                              progressValue >= 100
+                                ? "success.main"
+                                : "primary.main",
+                            boxShadow: isDarkMode
+                              ? "0 4px 14px rgba(0,0,0,0.4)"
+                              : "0 4px 14px rgba(0,121,107,0.25)",
+                            opacity: 1,
+                          },
+
                           "&:hover": {
                             bgcolor:
                               progressValue >= 100
@@ -577,7 +593,6 @@ function AboutPage() {
                               ? "0 6px 20px rgba(0,0,0,0.5)"
                               : "0 6px 20px rgba(0,121,107,0.35)",
                           },
-                          transition: "all 0.3s ease",
                         }}
                       >
                         {selfLearningStatus.well_rated_available < 10
