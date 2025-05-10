@@ -91,7 +91,7 @@ function Sidebar({ open, toggleDrawer, sessions, setSessions }) {
   // Fonctions d'API identiques à Sidebar.js
   const startNewChat = () => {
     axios
-      .post("http://localhost:5000/new_chat")
+      .post(`${process.env.REACT_APP_API_URL}/new_chat`)
       .then((response) => {
         const newSession = {
           id: response.data.session_id,
@@ -110,7 +110,7 @@ function Sidebar({ open, toggleDrawer, sessions, setSessions }) {
 
   const deleteChat = (sessionId) => {
     axios
-      .post("http://localhost:5000/delete_chat", { session_id: sessionId })
+      .post(`${process.env.REACT_APP_API_URL}/delete_chat`, { session_id: sessionId })
       .then(() => {
         setSessions(sessions.filter((session) => session.id !== sessionId));
         const currentSessionId = new URLSearchParams(

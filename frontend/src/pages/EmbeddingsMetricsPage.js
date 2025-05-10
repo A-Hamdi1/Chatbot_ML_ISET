@@ -47,7 +47,7 @@ ChartJS.register(
 );
 
 const fetchEmbeddingsMetrics = async () => {
-  const response = await axios.get("http://localhost:5000/embeddings-metrics");
+  const response = await axios.get(`${process.env.REACT_APP_API_URL}/embeddings-metrics`);
   return response.data;
 };
 

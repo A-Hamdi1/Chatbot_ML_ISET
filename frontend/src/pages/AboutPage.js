@@ -40,13 +40,12 @@ function AboutPage() {
       try {
         setLoading(true);
         // Récupérer les données "À propos"
-        const aboutResponse = await axios.get("http://localhost:5000/about");
+        const aboutResponse = await axios.get(`${process.env.REACT_APP_API_URL}/about`);
         setAboutData(aboutResponse.data);
 
         // Récupérer le statut de l'auto-apprentissage
-        const statusResponse = await axios.get(
-          "http://localhost:5000/api/self-learning/status"
-        );
+        const statusResponse = await axios.get(`${process.env.REACT_APP_API_URL}/api/self-learning/status`);
+
         setSelfLearningStatus(statusResponse.data);
       } catch (error) {
         console.error("Error fetching data:", error);

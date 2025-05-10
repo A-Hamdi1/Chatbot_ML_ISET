@@ -55,7 +55,7 @@ function ChatPage({ sessions, setSessions }) {
     setIsLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:5000/api/chat", {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/chat`, {
         message: input,
         session_id: sessionId,
         source: "text",
@@ -100,7 +100,7 @@ function ChatPage({ sessions, setSessions }) {
     setIsLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:5000/api/chat", {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/chat`, {
         message: voiceInput,
         session_id: sessionId,
         source: "voice",
@@ -130,7 +130,7 @@ function ChatPage({ sessions, setSessions }) {
   // Memoize handleRate
   const handleRate = useCallback(async (question, isUseful) => {
     try {
-      await axios.post("http://localhost:5000/rate", {
+      await axios.post(`${process.env.REACT_APP_API_URL}/rate`, {
         question,
         rating: isUseful,
       });
@@ -176,8 +176,7 @@ function ChatPage({ sessions, setSessions }) {
           session_id: sessionId || null,
           source: "shortcut",
         };
-        const response = await axios.post(
-          "http://localhost:5000/api/chat",
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/chat`,
           payload
         );
         const { chat_entry, session_id } = response.data;
@@ -283,7 +282,7 @@ function ChatPage({ sessions, setSessions }) {
         setMessages(session.messages);
       } else {
         axios
-          .get("http://localhost:5000/get_sessions")
+          .get(`${process.env.REACT_APP_API_URL}/get_sessions`)
           .then((response) => {
             const session = response.data.find(
               (s) => s.id === parseInt(sessionId)

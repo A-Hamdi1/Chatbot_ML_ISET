@@ -27,7 +27,7 @@ import {
 } from "@mui/material";
 import { Check, School, Refresh } from "@mui/icons-material";
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 const categoryColors = {
   admission: "#2196f3", // Bleu

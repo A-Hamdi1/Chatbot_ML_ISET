@@ -62,7 +62,7 @@ function App() {
 
   const fetchChatSessions = () => {
     axios
-      .get("http://localhost:5000/get_sessions")
+      .get(`${process.env.REACT_APP_API_URL}/get_sessions`)
       .then((response) => {
         setSessions(
           response.data.sort((a, b) => new Date(b.date) - new Date(a.date))
