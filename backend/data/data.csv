@@ -258,3 +258,238 @@ id,category,question,answer,url
 257,Salutations,Parles-tu français ?,"Oui, je parle français et je suis programmé pour répondre à vos questions concernant l'ISET Sfax dans cette langue. Comment puis-je vous aider aujourd'hui ?",/salutations/parles-tu-francais
 259,Salutations,Parles-tu anglais ?,"Yes, I do speak English. I can answer your questions about ISET Sfax in English as well. How may I help you today? (Oui, je parle anglais. Je peux répondre à vos questions concernant l'ISET Sfax en anglais également. Comment puis-je vous aider aujourd'hui ?)",/salutations/parles-tu-anglais
 260,Salutations,Je te remercie pour ton aide,"Avec plaisir ! Je suis ravi d'avoir pu vous aider. Si vous avez d'autres questions concernant l'ISET Sfax, n'hésitez pas à me les poser.",/salutations/je-te-remercie
+261,Présentation,Quelle est la capacité d'accueil de l'ISET Sfax ?,"L'ISET Sfax peut accueillir jusqu'à 3500 étudiants simultanément dans ses différentes filières.",/presentation/capacite
+262,Présentation,Combien de salles de cours possède l'ISET Sfax ?,"L'institut dispose de 45 salles de cours équipées pour l'enseignement théorique.",/presentation/infrastructure
+263,Présentation,Quelle est la date de création du département informatique ?,"Le département informatique a été créé en 1998, trois ans après l'ouverture de l'ISET Sfax.",/departements/informatique
+264,Présentation,Quel est le budget annuel de l'ISET Sfax ?,"Le budget annuel est d'environ 5 millions de dinars, financé principalement par l'État.",/presentation/financement
+265,Présentation,Y a-t-il une salle de prière sur le campus ?,"Oui, une salle de prière est disponible pour les étudiants et le personnel.",/vie-etudiante/infrastructure
+266,Présentation,Quel est le nombre moyen d'enseignants par département ?,"Chaque département compte en moyenne 25 enseignants permanents.",/presentation/equipe
+267,Présentation,Quelle est la vitesse du Wi-Fi sur le campus ?,"Le Wi-Fi offre un débit moyen de 20 Mbps pour les étudiants.",/services/informatiques
+268,Présentation,Combien de thèses sont soutenues chaque année ?,"Environ 15 thèses sont soutenues annuellement en collaboration avec des universités partenaires.",/recherche/activite
+269,Présentation,Quel est le pourcentage d'étudiants étrangers ?,"Les étudiants étrangers représentent environ 5% de l'effectif total.",/international/statistiques
+270,Présentation,Combien de brevets ont été déposés l'année dernière ?,"3 brevets ont été déposés par les chercheurs de l'ISET Sfax l'année dernière.",/recherche/brevets
+271,Présentation,Quelle est la durée moyenne des études pour obtenir une licence ?,"La durée moyenne est de 3 ans, avec un taux de réussite de 75%.",/formation/statistiques
+272,Présentation,Combien de clubs étudiants actifs y a-t-il ?,"Il y a 12 clubs étudiants actifs couvrant divers domaines.",/vie-etudiante/clubs
+273,Présentation,Quelle est la superficie de la bibliothèque ?,"La bibliothèque couvre 500 m² et offre 120 places assises.",/services/bibliotheque
+274,Présentation,Quel est le taux d'encadrement pédagogique ?,"Le taux d'encadrement est de 1 enseignant pour 25 étudiants.",/presentation/encadrement
+275,Présentation,Combien de conférences sont organisées par an ?,"Environ 20 conférences académiques ou professionnelles sont organisées annuellement.",/actualites/conferences
+276,Présentation,Y a-t-il un service de covoiturage pour les étudiants ?,"Oui, un système de covoiturage est géré par l'association des étudiants.",/vie-etudiante/transport
+277,Présentation,Quel est le nombre de partenariats industriels actifs ?,"L'ISET Sfax compte 30 partenariats industriels actifs.",/partenariats/industriels
+278,Présentation,Combien de projets étudiants sont financés chaque année ?,"Une vingtaine de projets étudiants bénéficient d'un financement annuel.",/vie-etudiante/projets
+279,Présentation,Quelle est la capacité de l'auditorium ?,"L'auditorium peut accueillir 300 personnes.",/infrastructure/auditorium
+280,Présentation,Quel est le délai moyen de réponse aux e-mails administratifs ?,"Le délai moyen est de 48 heures pour les demandes par e-mail.",/contact/administration
+281,Formation,Peut-on suivre des cours en ligne à l'ISET Sfax ?,"Oui, certains cours sont disponibles via la plateforme Moodle de l'institut.",/formation/elearning
+282,Formation,Quels logiciels sont enseignés en génie mécanique ?,"Les étudiants apprennent SolidWorks, AutoCAD et CATIA.",/departements/genie-mecanique/logiciels
+283,Formation,Combien de crédits pour un module optionnel ?,"Les modules optionnels valent généralement 3 crédits ECTS.",/formation/credits
+284,Formation,Y a-t-il des cours de programmation pour les débutants ?,"Oui, des cours d'initiation à Python et Java sont proposés en première année.",/departements/informatique/cours
+285,Formation,Quelle est la charge horaire hebdomadaire en première année ?,"La charge horaire moyenne est de 25 heures par semaine.",/formation/emploi-du-temps
+286,Formation,Les cours de langue sont-ils obligatoires ?,"Oui, l'anglais est obligatoire pour tous les étudiants.",/formation/langues
+287,Formation,Peut-on choisir son sujet de PFE ?,"Oui, sous réserve de validation par un enseignant encadrant.",/formation/pfe
+288,Formation,Comment sont notés les travaux pratiques ?,"Les TP comptent pour 30% de la note finale du module.",/formation/evaluation
+289,Formation,Quand sont publiés les emplois du temps ?,"Les emplois du temps sont disponibles une semaine avant la rentrée.",/calendrier/emplois-du-temps
+290,Formation,Y a-t-il des cours du soir en gestion ?,"Oui, des cours du soir sont proposés pour les professionnels.",/formation-continue/gestion
+291,Formation,Combien de groupes de TD y a-t-il par promotion ?,"Il y a généralement 8 à 10 groupes de TD par promotion.",/formation/organisation
+292,Formation,Les cours magistraux sont-ils enregistrés ?,"Certains cours sont enregistrés et disponibles sur la plateforme en ligne.",/services/elearning
+293,Formation,Peut-on assister aux cours d'autres filières ?,"Non, sauf autorisation exceptionnelle du département concerné.",/formation/assistance-cours
+294,Formation,Quel est le taux de réussite en première année ?,"Le taux de réussite est d'environ 65% en première année.",/formation/statistiques
+295,Formation,Comment obtenir une attestation de suivi de cours ?,"La demande se fait auprès du service de scolarité.",/services/scolarite
+296,Formation,Y a-t-il des cours d'été de remise à niveau ?,"Oui, des sessions intensives sont organisées en juillet et août.",/formation-continue/remise-a-niveau
+297,Formation,Les étudiants peuvent-ils proposer de nouveaux cours ?,"Oui, via le conseil de perfectionnement des formations.",/formation/propositions
+298,Formation,Quand commence la période des inscriptions pédagogiques ?,"Les inscriptions pédagogiques ont lieu début septembre.",/calendrier/inscriptions
+299,Formation,Combien de stages sont obligatoires pendant le cursus ?,"Deux stages sont obligatoires : un stage d'initiation et un PFE.",/formation/stages
+300,Formation,Les cours sont-ils dispensés en arabe ?,"Certains cours théoriques sont en arabe, mais la majorité sont en français.",/formation/langues-enseignement
+301,Admission,Quel est le délai pour recevoir une réponse après inscription ?,"La réponse est envoyée sous 15 jours après dépôt du dossier complet.",/admission/delais
+302,Admission,Peut-on postuler sans avoir le bac ?,"Non, le baccalauréat est obligatoire pour toute admission.",/admission/conditions
+303,Admission,Comment contacter le service d'admission par WhatsApp ?,"Le numéro WhatsApp officiel est le +216 12 345 678.",/contact/admission
+304,Admission,Les diplômes étrangers sont-ils acceptés ?,"Oui, après équivalence par le ministère tunisien.",/admission/etudiants-internationaux
+305,Admission,Quand sont affichées les listes d'admission ?,"Les listes sont publiées fin août sur le site web.",/admission/resultats
+306,Admission,Peut-on reporter son inscription à l'année suivante ?,"Oui, sous conditions et avec justification valable.",/admission/report
+307,Admission,Comment savoir si mon dossier est complet ?,"Un e-mail de confirmation est envoyé lorsque le dossier est validé.",/admission/dossier
+308,Admission,Les étudiants en réorientation sont-ils prioritaires ?,"Non, tous les candidats sont traités équitablement.",/admission/reorientation
+309,Admission,Quel est le coût de la demande d'admission ?,"Les frais de dossier s'élèvent à 30 dinars.",/admission/frais
+310,Admission,Peut-on visiter le campus avant de s'inscrire ?,"Oui, sur rendez-vous avec le service des admissions.",/admission/visites
+311,Admission,Les notes du bac technique comptent-elles double ?,"Oui, pour les filières correspondantes.",/admission/notes-bac
+312,Admission,Y a-t-il un âge minimum pour s'inscrire ?,"Non, mais il faut être titulaire d'un baccalauréat.",/admission/age-minimum
+313,Admission,Comment récupérer son dossier en cas de non-admission ?,"Les dossiers non retenus sont à récupérer sous 30 jours.",/admission/recuperation-dossier
+314,Admission,Les inscriptions sont-elles ouvertes aux étrangers hors Maghreb ?,"Oui, via la procédure spécifique pour les étudiants internationaux.",/admission/etudiants-internationaux
+315,Admission,Peut-on s'inscrire dans deux filières simultanément ?,"Non, la double inscription n'est pas autorisée.",/admission/double-inscription
+316,Admission,Quels sont les délais pour les paiements des frais ?,"Les frais doivent être réglés dans les 10 jours suivant l'admission.",/admission/paiements
+317,Admission,Comment obtenir une copie de son dossier d'inscription ?,"Une demande écrite doit être adressée à la scolarité.",/services/scolarite
+318,Admission,Les étudiants tunisiens à l'étranger ont-ils un quota ?,"Oui, 5% des places leur sont réservées.",/admission/quotas
+319,Admission,Quand commence l'année pour les nouveaux admis ?,"La rentrée des nouveaux étudiants a lieu début octobre.",/calendrier/rentree
+320,Admission,Peut-on changer de filière après admission ?,"Oui, sous réserve de places disponibles et d'accord du département.",/admission/changement-filiere
+321,Vie étudiante,Comment participer aux tournois inter-ISET ?,"Inscrivez-vous auprès du bureau des sports de l'ISET Sfax. Les tournois ont lieu chaque semestre dans diverses disciplines (football / basketball / etc.).",/vie-etudiante/sports
+322,Vie étudiante,Y a-t-il un système de prêt de matériel sportif ?,"Oui le service des sports prête ballons raquettes et équipements contre dépôt de la carte étudiante.",/vie-etudiante/materiel-sportif
+323,Vie étudiante,Comment organiser une collecte de fonds pour un projet étudiant ?,"Soumettez votre projet au bureau de la vie étudiante pour approbation. Les collectes doivent respecter le règlement de l'institut.",/vie-etudiante/projets-etudiants
+324,Vie étudiante,Existe-t-il un journal étudiant à l'ISET Sfax ?,"Oui le journal 'TechNews' est géré par les étudiants. Contactez le club médias pour contribuer.",/vie-etudiante/journal
+325,Vie étudiante,Peut-on créer une radio étudiante ?,"Un projet de webradio est en cours. Proposez votre candidature au bureau de la vie étudiante.",/vie-etudiante/medias
+326,Vie étudiante,Comment obtenir une attestation de participation aux activités associatives ?,"Demandez-la au responsable de votre club ou association. Le bureau de la vie étudiante la valide sous 48h.",/vie-etudiante/attestations
+327,Vie étudiante,Y a-t-il des réductions pour les étudiants dans les transports ?,"Oui présentez votre carte étudiante pour bénéficier de tarifs préférentiels sur les bus urbains.",/vie-etudiante/transports
+328,Vie étudiante,Comment rejoindre l'équipe de théâtre de l'ISET ?,"Inscrivez-vous lors de la semaine des clubs ou contactez le club culturel chaque mercredi après-midi.",/vie-etudiante/theatre
+329,Vie étudiante,Peut-on organiser une projection de film sur le campus ?,"Oui avec l'accord préalable du bureau de la vie étudiante et le respect des droits d'auteur.",/vie-etudiante/evenements-culturels
+330,Vie étudiante,Comment contacter les délégués de promotion ?,"Leurs coordonnées sont affichées dans chaque département et sur l'intranet étudiant.",/vie-etudiante/delegues
+331,Vie étudiante,Y a-t-il un vestiaire pour les sportifs ?,"Oui, des vestiaires avec douches sont disponibles près du terrain de sport.",/vie-etudiante/infrastructures-sportives
+332,Vie étudiante,Comment proposer une idée d'événement ?,"Envoyez un email détaillé au bureau de la vie étudiante ou déposez votre projet dans l'urne dédiée.",/vie-etudiante/propositions
+333,Vie étudiante,Peut-on exposer ses œuvres artistiques sur le campus ?,"Oui, l'espace d'exposition est réservable auprès du service culturel.",/vie-etudiante/expositions
+334,Vie étudiante,Comment participer aux compétitions de programmation ?,"Inscrivez-vous via le club informatique. Des sélections ont lieu chaque année pour les compétitions nationales.",/vie-etudiante/competitions-technologiques
+335,Vie étudiante,Y a-t-il un service de covoiturage entre étudiants ?,"Oui, un groupe Facebook 'Covoiturage ISET Sfax' est géré par les étudiants.",/vie-etudiante/covoiturage
+336,Vie étudiante,Comment obtenir un parrainage pour un projet technologique ?,"Soumettez votre projet à l'incubateur de l'ISET ou aux partenaires industriels lors des forums.",/vie-etudiante/parrainage
+337,Vie étudiante,Peut-on utiliser les espaces verts pour étudier ?,"Oui, des bancs et tables sont installés dans les jardins pour travailler en plein air.",/vie-etudiante/espaces-verts
+338,Vie étudiante,Comment signaler un problème dans les résidences universitaires ?,"Contactez le gestionnaire de la résidence ou le bureau de la vie étudiante par email.",/vie-etudiante/residences
+339,Vie étudiante,Y a-t-il des cours de danse proposés par l'ISET ?,"Oui, le club artistique organise des ateliers de danse moderne et traditionnelle.",/vie-etudiante/danse
+340,Vie étudiante,Comment rejoindre le programme de tutorat entre étudiants ?,"Inscrivez-vous au bureau pédagogique de votre département en septembre ou février.",/vie-etudiante/tutorat
+341,Recherche,Comment publier dans la revue scientifique de l'ISET ?,"Envoyez votre article à revue-scientifique@isetsf.rnu.tn. Un comité évaluateur donnera son avis sous 6 semaines.",/recherche/publications
+342,Recherche,Peut-on utiliser les laboratoires pour un projet personnel ?,"Oui, sur demande motivée et avec l'accord du responsable de laboratoire.",/recherche/acces-labos
+343,Recherche,Y a-t-il des bourses pour les chercheurs invités ?,"Oui, via des programmes comme Erasmus+ ou des fonds propres de l'ISET.",/recherche/bourses-invites
+344,Recherche,Comment accéder aux bases de données payantes ?,"Connectez-vous via le réseau de l'ISET pour accéder gratuitement à IEEE Xplore et ScienceDirect.",/recherche/acces-bases-de-donnees
+345,Recherche,Quels sont les critères pour diriger une thèse à l'ISET ?,"Il faut être enseignant-chercheur habilité et avoir un projet validé par une université partenaire.",/recherche/encadrement-theses
+346,Recherche,Peut-on collaborer avec des chercheurs étrangers ?,"Oui, via les programmes de mobilité ou en répondant à des appels à projets internationaux.",/recherche/collaborations-internationales
+347,Recherche,Comment obtenir des données statistiques sur la recherche à l'ISET ?,"Consultez le rapport annuel disponible au bureau de la recherche ou sur l'intranet.",/recherche/statistiques
+348,Recherche,Y a-t-il un annuaire des chercheurs de l'ISET ?,"Oui, il est accessible sur l'intranet avec leurs spécialités et coordonnées.",/recherche/annuaire
+349,Recherche,Comment participer à un séminaire de recherche ?,"Consultez l'agenda sur le site de l'ISET et inscrivez-vous par email au bureau de la recherche.",/recherche/seminaires
+350,Recherche,Peut-on déposer un brevet via l'ISET ?,"Oui, la cellule de valorisation accompagne les chercheurs dans les démarches.",/recherche/brevets
+351,Recherche,Comment financer un prototype innovant ?,"Plusieurs fonds sont disponibles (FST, ANPR). Soumettez votre projet à la direction de la recherche.",/recherche/financement-prototypes
+352,Recherche,Y a-t-il des prix pour les meilleurs posters scientifiques ?,"Oui, trois prix sont décernés chaque année lors de la journée de la recherche.",/recherche/prix-scientifiques
+353,Recherche,Comment contacter les anciens chercheurs de l'ISET ?,"Via l'association des alumni chercheurs ou le bureau de la recherche.",/recherche/alumni
+354,Recherche,Peut-on utiliser les équipements de recherche pour une startup ?,"Oui, sous conditions et avec une convention de partenariat.",/recherche/transfert-technologique
+355,Recherche,Comment organiser une conférence à l'ISET ?,"Soumettez un dossier au bureau de la recherche au moins 3 mois à l'avance.",/recherche/organisation-conferences
+356,Recherche,Y a-t-il des bourses pour les doctorants ?,"Oui, des bourses du ministère ou de projets européens sont disponibles.",/recherche/bourses-doctorat
+357,Recherche,Comment publier un livre via l'ISET ?,"Contactez la commission éditoriale qui gère les coéditions avec des maisons partenaires.",/recherche/edition
+358,Recherche,Peut-on accéder aux archives des projets de recherche ?,"Oui, sur demande motivée auprès de la bibliothèque ou du bureau de la recherche.",/recherche/archives
+359,Recherche,Comment participer aux appels à projets nationaux ?,"Inscrivez-vous aux ateliers d'écriture de projets organisés trimestriellement.",/recherche/appels-a-projets
+360,Recherche,Y a-t-il un espace de coworking pour les chercheurs ?,"Oui, un espace dédié est réservable au bâtiment de la recherche.",/recherche/espace-coworking
+361,International,Comment trouver un correspondant étranger à l'ISET ?,"Le bureau des relations internationales propose un programme de jumelage avec des étudiants partenaires.",/relations-internationales/jumelage
+362,International,Peut-on faire un semestre d'échange en Asie ?,"Oui, des accords existent avec des universités en Chine et au Japon. Consultez le catalogue des partenaires.",/relations-internationales/destinations-asie
+363,International,Y a-t-il des cours de français pour étrangers ?,"Oui, des cours intensifs sont organisés avant chaque rentrée pour les étudiants non francophones.",/relations-internationales/cours-langues
+364,International,Comment obtenir une attestation de niveau en anglais pour une candidature à l'étranger ?,"Passez le TOEIC via le centre de langues de l'ISET. Les sessions ont lieu tous les mois.",/relations-internationales/certifications-langues
+365,International,Les stages Erasmus+ sont-ils payants ?,"Non, ils sont financés par des bourses couvrant les frais de voyage et de séjour.",/relations-internationales/financement-stages
+366,International,Peut-on partir en échange sans parler la langue du pays ?,"Oui, si l'université partenaire propose des cours en anglais. Un niveau B2 est requis.",/relations-internationales/exigences-linguistiques
+367,International,Comment traduire son diplôme pour une université étrangère ?,"Le service de scolarité délivre des traductions certifiées en anglais ou français.",/relations-internationales/traductions
+368,International,Y a-t-il des bourses pour les conférences à l'étranger ?,"Oui, jusqu'à 3 000 TND par an via le fonds de mobilité académique.",/relations-internationales/bourses-conferences
+369,International,Comment préparer son CV pour une université européenne ?,"Utilisez le modèle Europass et faites-le relire par le bureau des relations internationales.",/relations-internationales/cv-europeen
+370,International,Peut-on faire un double diplôme avec le Canada ?,"Oui, avec l'Université de Sherbrooke en génie informatique ou électrique.",/relations-internationales/doubles-diplomes
+371,International,Comment obtenir une lettre de recommandation pour un échange ?,"Demandez à un enseignant de votre département au moins un mois avant la deadline.",/relations-internationales/lettres-recommandation
+372,International,Y a-t-il un groupe Facebook pour les étudiants internationaux ?,"Oui : 'ISET Sfax International Students'. Les événements d'intégration y sont annoncés.",/relations-internationales/reseaux-etudiants
+373,International,Peut-on partir en échange en cours d'année ?,"Oui, pour des durées de 3 à 6 mois via les programmes de mobilité courte.",/relations-internationales/mobilite-courte
+374,International,Comment se passe la reconnaissance des crédits après un échange ?,"Un contrat pédagogique est signé avant le départ pour garantir l'équivalence des cours.",/relations-internationales/equivalence-credits
+375,International,Y a-t-il des logements réservés aux étudiants en échange ?,"Oui, 10 studios sont gérés par l'ISET à proximité du campus.",/relations-internationales/logements
+376,International,Comment participer au programme de volontariat international ?,"Inscrivez-vous via le club solidarité internationale qui organise des missions chaque été.",/relations-internationales/volontariat
+377,International,Peut-on financer un projet humanitaire à l'étranger ?,"Oui, via le fonds d'initiatives étudiantes internationales (jusqu'à 5 000 TND par projet).",/relations-internationales/financement-projets
+378,International,Comment contacter les anciens étudiants partis à l'étranger ?,"L'association des alumni internationalux publie un annuaire consultable au bureau des relations internationales.",/relations-internationales/alumni
+379,International,Y a-t-il des cours interculturels avant un départ ?,"Oui, 3 ateliers obligatoires sont organisés sur les codes culturels et administratifs.",/relations-internationales/preparation
+380,International,Comment obtenir un parrainage pour un visa étudiant ?,"Le bureau des relations internationales fournit une attestation officielle de prise en charge.",/relations-internationales/visas
+381,Stages et emploi,Comment trouver un stage dans une startup ?,"Le club entrepreneuriat organise des rencontres avec des startups locales chaque mois.",/stages-emploi/startups
+382,Stages et emploi,Peut-on faire son PFE en télétravail ?,"Oui, si l'entreprise fournit un encadrement adapté et que le département donne son accord.",/stages-emploi/teletravail
+383,Stages et emploi,Y a-t-il des ateliers pour créer son CV vidéo ?,"Oui, 2 sessions par an sont organisées par la cellule d'insertion professionnelle.",/stages-emploi/cv-video
+384,Stages et emploi,Comment postuler aux offres des multinationales ?,"Inscrivez-vous à la plateforme ""ISET Career"" où elles publient leurs offres en priorité.",/stages-emploi/multinationales
+385,Stages et emploi,Les stages à l'étranger sont-ils reconnus ?,"Oui, à condition qu'une convention tripartite soit signée avant le départ.",/stages-emploi/stages-internationaux
+386,Stages et emploi,Comment négocier son premier salaire après l'ISET ?,"Participez à l'atelier ""Négociation salariale"" organisé chaque semestre par les alumni.",/stages-emploi/negociation
+387,Stages et emploi,Y a-t-il un annuaire des entreprises accueillant des stagiaires ?,"Oui, consultable au bureau des stages ou sur l'intranet étudiant.",/stages-emploi/annuaire-entreprises
+388,Stages et emploi,Peut-on faire un stage non rémunéré ?,"Oui, mais la cellule insertion recommande de privilégier les stages rémunérés ou indemnisés.",/stages-emploi/remuneration
+389,Stages et emploi,Comment valoriser un stage à l'étranger dans son CV ?,"Mettez en avant les compétences interculturelles et linguistiques acquises.",/stages-emploi/valorisation-cv
+390,Stages et emploi,Y a-t-il des simulations d'entretiens en anglais ?,"Oui, sur rendez-vous avec le centre de langues et des professionnels anglophones.",/stages-emploi/entretiens-anglais
+391,Stages et emploi,Comment contacter les anciens pour un parrainage professionnel ?,"Via le réseau LinkedIn ""ISET Sfax Alumni"" ou les rencontres organisées par l'association.",/stages-emploi/reseau-alumni
+392,Stages et emploi,Peut-on transformer son PFE en CDI ?,"30% des PFE aboutissent à une embauche. La cellule insertion vous aide à négocier.",/stages-emploi/pfe-vers-emploi
+393,Stages et emploi,Y a-t-il des primes pour les stages en zones reculées ?,"Oui, jusqu'à 300 TND/mois via le programme ""Mobilité professionnelle"".",/stages-emploi/aides-financieres
+394,Stages et emploi,Comment obtenir une recommandation LinkedIn de son encadrant ?,"Demandez-lui directement après avoir rédigé une ébauche de texte.",/stages-emploi/recommandations
+395,Stages et emploi,Peut-on faire un stage dans la fonction publique ?,"Oui, des conventions existent avec des ministères et collectivités locales.",/stages-emploi/secteur-public
+396,Stages et emploi,Comment créer son entreprise après l'ISET ?,"L'incubateur propose un programme ""Startup Launch"" avec mentorat et accès à des fonds.",/stages-emploi/entrepreneuriat
+397,Stages et emploi,Y a-t-il des jobs étudiants sur le campus ?,"Oui, comme tuteur ou assistant administratif. Consultez les offres à la vie étudiante.",/stages-emploi/jobs-etudiants
+398,Stages et emploi,Comment se préparer aux tests techniques des recruteurs ?,"Entraînez-vous sur la plateforme ""ISET Tech Challenges"" avec des exercices réels.",/stages-emploi/preparation-tests
+399,Stages et emploi,Peut-on faire un stage dans une ONG ?,"Oui, des partenariats existent avec des ONG locales et internationales.",/stages-emploi/ong
+400,Stages et emploi,Comment accéder aux statistiques d'insertion par filière ?,"Le rapport annuel est disponible à la bibliothèque et sur l'intranet.",/stages-emploi/statistiques
+401,Présentation,"Quel est le taux d'insertion professionnelle des diplômés ?","92% des diplômés trouvent un emploi dans les 6 mois.","/departements/informatique/insertion"
+402,Présentation,"Combien d'enseignants permanents y a-t-il dans le département informatique ?","Le département informatique compte 22 enseignants permanents spécialisés dans divers domaines des technologies de l'information.","/departements/informatique/equipe"
+403,Présentation,"Quel est le taux de réussite moyen en licence informatique ?","Le taux de réussite moyen est de 78% pour les trois années de licence.","/departements/informatique/statistiques"
+404,Présentation,"Quand a été créé le club robotique du département ?","Le club robotique a été créé en 2015 et participe régulièrement à des compétitions nationales.","/departements/informatique/clubs"
+405,Présentation,"Y a-t-il un laboratoire dédié à la cybersécurité ?","Oui, le laboratoire de cybersécurité est équipé pour des simulations d'attaques et de défense réseau.","/departements/informatique/laboratoires"
+406,Présentation,"Combien d'étudiants le département accueille-t-il par promotion ?","Environ 150 étudiants sont admis chaque année en première année de licence.","/departements/informatique/capacite"
+407,Présentation,"Qui est le responsable du département informatique ?","Le Dr. Sami Ben Ahmed est le chef du département informatique depuis 2021.","/departements/informatique/direction"
+408,Présentation,"Quels sont les partenaires industriels du département ?","SOPRA STERIA, STMicroelectronics et IBM Tunisie collaborent régulièrement avec le département.","/departements/informatique/partenariats"
+409,Présentation,"Le département dispose-t-il d'un data center ?","Oui, un data center pédagogique est utilisé pour les travaux pratiques en cloud computing.","/departements/informatique/infrastructure"
+410,Présentation,"Quelle est la devise du département informatique ?","La devise est 'Innovation, Excellence, Collaboration'.","/departements/informatique/presentation"
+411,Présentation,"Y a-t-il une salle dédiée aux projets étudiants ?","Oui, la salle 'TechLab' est réservée aux projets innovants des étudiants.","/departements/informatique/espaces-projets"
+412,Présentation,"Combien de brevets ont été déposés par le département ?","5 brevets ont été déposés ces 5 dernières années.","/departements/informatique/recherche"
+413,Présentation,"Quel est le pourcentage de filles dans le département ?","Environ 35% des étudiants en informatique sont des filles.","/departements/informatique/statistiques-genre"
+414,Présentation,"Le département organise-t-il des hackathons ?","Oui, deux hackathons annuels sont organisés avec des partenaires industriels.","/departements/informatique/evenements"
+415,Présentation,"Quel est le budget annuel du département ?","Le budget annuel est d'environ 800 000 dinars.","/departements/informatique/financement"
+416,Présentation,"Y a-t-il un système de tutorat entre étudiants ?","Oui, les étudiants de 3ème année encadrent ceux de 1ère année.","/departements/informatique/tutorat"
+417,Présentation,"Quels langages de programmation sont enseignés ?","Python, Java, C++, et JavaScript sont au programme.","/departements/informatique/programmes"
+418,Présentation,"Le département participe-t-il à des compétitions internationales ?","Oui, notamment aux compétitions ACM-ICPC et Huawei ICT Challenge.","/departements/informatique/competitions"
+419,Présentation,"Y a-t-il un incubateur pour les startups en informatique ?","Oui, l'incubateur 'TechStart' accompagne 5 projets par an.","/departements/informatique/incubateur"
+420,Présentation,"Comment contacter le secrétariat du département ?","Par email : dept.info@isetsf.rnu.tn ou par téléphone au 74 431 180.","/departements/informatique/contact"
+421,Formation,"Peut-on choisir ses modules optionnels en licence ?","Oui, 4 modules optionnels sont à choisir en 3ème année.","/departements/informatique/formation/options"
+422,Formation,"Y a-t-il des cours de blockchain ?","Oui, un module optionnel est proposé en 3ème année.","/departements/informatique/formation/modules"
+423,Formation,"Comment sont organisés les TP de programmation ?","Par groupes de 20 étudiants, avec un PC par étudiant.","/departements/informatique/formation/organisation-tp"
+424,Formation,"Quel est le volume horaire annuel en développement web ?","120 heures réparties sur les 3 années de licence.","/departements/informatique/formation/volumes-horaires"
+425,Formation,"Les cours de réseaux incluent-ils des certifications ?","Oui, préparation aux certifications CISCO CCNA.","/departements/informatique/formation/certifications"
+426,Recherche,"Comment accéder au cluster de calcul du département ?","Demandez un compte HPC à votre encadrant de recherche.","/departements/informatique/recherche/cluster"
+427,Recherche,"Quels sont les axes de recherche prioritaires en 2024 ?","IA explicable, IoT sécurisé, et cloud hybride.","/departements/informatique/recherche/axes"
+428,Recherche,"Peut-on publier avec un enseignant-chercheur en L3 ?","Oui, si vous participez à un projet labellisé (demandez en salle B210).","/departements/informatique/recherche/publications"
+429,Recherche,"Y a-t-il des bourses pour les projets innovants en informatique ?","Oui, jusqu’à 5 000 TND via le fonds « Innov’ISET ».","/departements/informatique/recherche/financement"
+430,Recherche,"Comment utiliser le dataset public du département ?","Consultez data.isetsf.rnu.tn et respectez la licence CC BY 4.0.","/departements/informatique/recherche/datasets"
+431,FAQ,"Quels langages sont enseignés en 1ère année d’informatique ?","Python, Java, SQL, et bases de HTML/CSS.","/departements/informatique/programmes"
+432,FAQ,"Peut-on utiliser son propre ordinateur en TP ?","Oui, si vous installez les logiciels requis (liste sur l’intranet).","/departements/informatique/tp"
+433,FAQ,"Comment accéder aux serveurs Linux du département ?","Via SSH avec vos identifiants ISET sur linux.isetsf.rnu.tn.","/departements/informatique/serveurs"
+434,FAQ,"Y a-t-il des certifications Cisco gratuites pour les étudiants ?","Oui, le département finance 20 places/an pour la CCNA.","/departements/informatique/certifications"
+435,FAQ,"Comment rejoindre le club cybersécurité ?","Inscrivez-vous en septembre au bureau des clubs (salle D05).","/departements/informatique/clubs"
+436,Actualités,"Quels sont les nouveaux projets du labo IA cette année ?","Un projet sur l’analyse d’images médicales en collaboration avec l’hôpital de Sfax.","/departements/informatique/actualites-recherche"
+437,Actualités,"Quel entreprise a récemment offert des équipements au département ?","Orange Tunisie a doté le labo réseaux de nouveaux routeurs Cisco.","/departements/informatique/partenariats"
+438,Actualités,"Quels étudiants ont remporté le concours national de coding 2023 ?","L’équipe « ISET_Devs » (Ahmed Ben Salah et Yosra Mejri, L3).","/departements/informatique/competitions"
+439,Actualités,"Y a-t-il une nouvelle spécialisation en cloud computing ?","Oui, un parcours AWS Academy sera proposé à partir de septembre 2024.","/departements/informatique/nouveaux-cours"
+440,Actualités,"Quand aura lieu la prochaine conférence sur la blockchain ?","Le 15 octobre 2024, avec des experts de Binance Academy.","/departements/informatique/evenements"
+441,Vie étudiante,"Comment participer aux compétitions de hacking éthique ?","Via le club « CyberSec ISET » qui organise des sélections internes.","/departements/informatique/cybersecurite"
+442,Vie étudiante,"Y a-t-il un espace de coworking pour les projets informatiques ?","Oui, salle D24 (ouvert 24h/24 avec badge étudiant).","/departements/informatique/coworking"
+443,Vie étudiante,"Peut-on créer son association tech au département ?","Oui, avec 5 membres minimum et l’approbation du conseil de département.","/departements/informatique/associations"
+444,Vie étudiante,"Comment emprunter du matériel pour un projet (ex : Raspberry Pi) ?","Au labo C15, contre dépôt de la carte étudiante (durée max : 1 semaine).","/departements/informatique/materiel"
+445,Vie étudiante,"Où trouver les templates LaTeX pour les rapports de PFE ?","Téléchargez-les sur gitlab.isetsf.rnu.tn/pfe-templates.","/departements/informatique/ressources"
+446,Formation,"Quel est le langage de programmation enseigné en première année ?","Python et Java sont les langages principaux en première année.","/departements/informatique/programmes-premiere-annee"
+447,Formation,"Y a-t-il des cours d’intelligence artificielle ?","Oui, un module d’IA est proposé en 3ème année.","/departements/informatique/modules-ia"
+448,Formation,"Combien d’heures de TP par semaine en programmation ?","6 heures de TP hebdomadaires en première année.","/departements/informatique/emploi-du-temps"
+449,Formation,"Les cours de base de données utilisent-ils SQL ?","Oui, MySQL et Oracle SQL sont enseignés.","/departements/informatique/cours-bdd"
+450,Formation,"Peut-on suivre des cours en ligne en plus des cours présentiels ?","Oui, via la plateforme Moodle de l’ISET.","/departements/informatique/elearning"
+451,Formation,"Comment sont évalués les projets de développement logiciel ?","Par soutenance et code source (50% chacun).","/departements/informatique/evaluation-projets"
+452,Formation,"Y a-t-il des cours de cybersécurité avancée ?","Oui, en 3ème année avec des labs pratiques.","/departements/informatique/cybersecurite"
+453,Formation,"Quel framework web est enseigné ?","Django (Python) et Spring Boot (Java).","/departements/informatique/frameworks-web"
+454,Formation,"Les étudiants apprennent-ils le DevOps ?","Oui, via un module optionnel sur Docker et Kubernetes.","/departements/informatique/devops"
+455,Formation,"Comment se passent les cours de réseaux ?","50% théorie, 50% TP sur matériel Cisco.","/departements/informatique/reseaux"
+456,Formation,"Y a-t-il des cours de mobile (Android/iOS) ?","Oui, développement Android avec Kotlin.","/departements/informatique/mobile"
+457,Formation,"Peut-on utiliser son propre ordinateur pour les TP ?","Oui, si celui-ci répond aux exigences techniques.","/departements/informatique/equipements-tp"
+458,Formation,"Comment sont formés les étudiants au cloud computing ?","Labs pratiques sur AWS et Azure.","/departements/informatique/cloud"
+459,Formation,"Les cours de gestion de projet incluent-ils Scrum ?","Oui, avec des simulations de sprints.","/departements/informatique/gestion-projet"
+460,Formation,"Y a-t-il un projet de fin d’année en première année ?","Oui, un mini-projet en Python ou Java.","/departements/informatique/projets-annee"
+461,Formation,"Comment sont notés les travaux de groupe ?","70% qualité technique, 30% présentation orale.","/departements/informatique/evaluation-travaux"
+462,Formation,"Les cours de mathématiques sont-ils adaptés à l’informatique ?","Oui, axés sur l’algorithmique et les stats.","/departements/informatique/mathematiques"
+463,Formation,"Peut-on choisir son langage pour le PFE ?","Oui, selon les besoins du projet.","/departements/informatique/pfe-choix"
+464,Formation,"Y a-t-il des cours d’UX/UI design ?","Oui, un module optionnel en 2ème année.","/departements/informatique/ux-ui"
+465,Formation,"Comment sont organisées les révisions avant examens ?","Séances encadrées par les enseignants.","/departements/informatique/revisions"
+466,Formation,"Les étudiants apprennent-ils le machine learning ?","Oui, via Python et TensorFlow en 3ème année.","/departements/informatique/machine-learning"
+467,Formation,"Y a-t-il des cours en anglais ?","Oui, certains modules techniques en 3ème année.","/departements/informatique/langues-enseignement"
+468,Formation,"Comment sont sélectionnés les sujets de PFE ?","Liste proposée par les enseignants ou suggestions personnelles.","/departements/informatique/choix-pfe"
+469,Formation,"Les TP sont-ils notés séparément des examens ?","Oui, 40% TP, 60% examen final.","/departements/informatique/notation"
+470,Formation,"Y a-t-il des cours de développement jeu vidéo ?","Oui, un module optionnel avec Unity.","/departements/informatique/jeux-video"
+471,Formation,"Comment accéder aux ressources pédagogiques en ligne ?","Via Moodle avec ses identifiants étudiants.","/departements/informatique/ressources-en-ligne"
+472,Formation,"Les étudiants utilisent-ils GitHub ?","Oui, obligatoire pour les projets à partir de la 2ème année.","/departements/informatique/github"
+473,Formation,"Y a-t-il des cours de big data ?","Oui, module Hadoop et Spark en 3ème année.","/departements/informatique/big-data"
+474,Formation,"Comment sont encadrés les projets étudiants ?","Par un enseignant-référent avec des revues hebdomadaires.","/departements/informatique/encadrement-projets"
+475,Formation,"Peut-on suivre des MOOCs pour valider des crédits ?","Oui, sous conditions (ex : Coursera/edX certifiants).","/departements/informatique/moocs"
+476,Formation,"Y a-t-il des cours de virtualisation ?","Oui, labs sur VMware et VirtualBox.","/departements/informatique/virtualisation"
+477,Formation,"Comment se déroulent les examens pratiques ?","Sur machine, avec un problème à résoudre en temps limité.","/departements/informatique/examens-pratiques"
+478,Formation,"Les étudiants apprennent-ils le low-code ?","Oui, initiation à OutSystems en 2ème année.","/departements/informatique/low-code"
+479,Formation,"Y a-t-il des cours de gestion de bases NoSQL ?","Oui, MongoDB et Firebase sont au programme.","/departements/informatique/nosql"
+480,Formation,"Comment sont formés les étudiants à la cybersécurité offensive ?","Via des labs en environnement contrôlé (Kali Linux).","/departements/informatique/cyber-offensive"
+481,Formation,"Y a-t-il des projets open source obligatoires ?","Oui, un projet à contribuer en 3ème année.","/departements/informatique/open-source"
+482,Formation,"Comment sont notées les soutenances de projet ?","50% fond, 30% forme, 20% réponses aux questions.","/departements/informatique/notation-soutenances"
+483,Formation,"Y a-t-il des cours de IoT (Internet des Objets) ?","Oui, avec Arduino et Raspberry Pi.","/departements/informatique/iot"
+484,Formation,"Comment sont gérés les retards de rendu de projet ?","Pénalités de 10% par jour de retard.","/departements/informatique/regles-projets"
+485,Formation,"Y a-t-il une certification Cisco obligatoire ?","Non, mais fortement recommandée (CCNA).","/departements/informatique/certifications-cisco"
+486,Formation,"Comment sont organisés les cours d’algorithmique ?","2h de cours magistral + 2h de TD par semaine.","/departements/informatique/algo"
+487,Formation,"Y a-t-il des cours de développement blockchain ?","Oui, initiation à Solidity et Ethereum.","/departements/informatique/blockchain"
+488,Formation,"Comment sont sélectionnés les étudiants pour les compétitions ?","Sur tests techniques et motivation.","/departements/informatique/selection-competitions"
+489,Formation,"Y a-t-il des cours de gestion de données géospatiales ?","Oui, module optionnel avec PostGIS.","/departements/informatique/geodata"
+490,Formation,"Comment sont évaluées les compétences pratiques ?","Via des ""mini-projets"" notés chaque semestre.","/departements/informatique/evaluation-pratique"
+491,Formation,"Y a-t-il des cours de réalité augmentée ?","Oui, avec Unity et ARKit en option.","/departements/informatique/realite-augmentee"
+492,Formation,"Comment sont gérés les groupes de projet ?","Attribution aléatoire ou libre selon les enseignants.","/departements/informatique/groupes-projet"
+493,Formation,"Y a-t-il des cours de bioinformatique ?","Non, mais possibilité de PFE dans ce domaine.","/departements/informatique/bioinfo"
+494,Formation,"Comment sont notés les rapports techniques ?","60% contenu, 20% structure, 20% orthographe.","/departements/informatique/notation-rapports"
+495,Formation,"Y a-t-il des cours de NLP (traitement du langage naturel) ?","Oui, en 3ème année avec Python NLTK.","/departements/informatique/nlp"
