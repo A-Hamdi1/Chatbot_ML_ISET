@@ -1,7 +1,7 @@
 from http.client import responses as http_responses
 import os
 import re
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from waitress import serve
 from chatbot.data_processing import load_data, preprocess_text, vectorizer, tfidf_matrix, categories
@@ -18,6 +18,7 @@ CORS(app)  # Enable CORS for React frontend
 
 # File to store chat sessions persistently
 CHAT_FILE = "data/chat_sessions.csv"
+
 
 def load_chat_sessions():
     try:
@@ -51,6 +52,7 @@ def load_chat_sessions():
         print(f"Error loading chat sessions: {e}")
         return []
 
+
 def save_chat_sessions(sessions):
     try:
         os.makedirs(os.path.dirname(CHAT_FILE), exist_ok=True)
@@ -75,9 +77,11 @@ def save_chat_sessions(sessions):
     except Exception as e:
         print(f"Error saving chat sessions: {e}")
 
+
 @app.route('/')
 def index():
     return jsonify({"status": "success", "message": "Welcome to Chatbot ISET API"})
+
 
 @app.route('/api/chat', methods=['POST'])
 def chat_api():
@@ -109,7 +113,8 @@ def chat_api():
         if session_id:
             try:
                 session_id = int(session_id)
-                current_session = next((s for s in sessions if s['id'] == session_id), None)
+                current_session = next(
+                    (s for s in sessions if s['id'] == session_id), None)
             except ValueError:
                 session_id = None
 
@@ -137,6 +142,7 @@ def chat_api():
         print(f"Error in chat API: {e}")
         return jsonify({"status": "error", "message": "Internal server error"}), 500
 
+
 @app.route('/metrics')
 def metrics():
     try:
@@ -144,7 +150,8 @@ def metrics():
         if os.path.exists('data/ratings.csv'):
             ratings = pd.read_csv('data/ratings.csv', encoding='utf-8')
             ratings_summary["utile"] = len(ratings[ratings['rating'] == True])
-            ratings_summary["non_utile"] = len(ratings[ratings['rating'] == False])
+            ratings_summary["non_utile"] = len(
+                ratings[ratings['rating'] == False])
 
         return jsonify({
             "nb_score": nb_score,
@@ -157,6 +164,7 @@ def metrics():
     except Exception as e:
         print(f"Error generating metrics: {e}")
         return jsonify({"status": "error", "message": "Erreur lors de la génération des métriques."}), 500
+
 
 @app.route('/about')
 def about():
@@ -177,6 +185,7 @@ def about():
         ]
     })
 
+
 @app.route('/rate', methods=['POST'])
 def rate_response():
     try:
@@ -189,7 +198,8 @@ def rate_response():
         }
         if os.path.exists('data/ratings.csv'):
             df = pd.read_csv('data/ratings.csv', encoding='utf-8')
-            df = pd.concat([df, pd.DataFrame([rating_entry])], ignore_index=True)
+            df = pd.concat([df, pd.DataFrame([rating_entry])],
+                           ignore_index=True)
         else:
             df = pd.DataFrame([rating_entry])
         df.to_csv('data/ratings.csv', index=False, encoding='utf-8')
@@ -198,6 +208,7 @@ def rate_response():
         print(f"Error saving rating: {e}")
         return jsonify({"status": "error", "message": "Erreur lors de l'enregistrement du retour."}), 500
 
+
 @app.route('/report', methods=['GET'])
 def generate_report():
     try:
@@ -205,7 +216,8 @@ def generate_report():
         from sklearn.model_selection import cross_val_score
         shortcut_stats = {shortcut: 0 for shortcut in shortcuts.keys()}
         if os.path.exists('data/new_questions.csv'):
-            questions = pd.read_csv('data/new_questions.csv', encoding='utf-8')['question'].tolist()
+            questions = pd.read_csv(
+                'data/new_questions.csv', encoding='utf-8')['question'].tolist()
             for shortcut in shortcuts.keys():
                 shortcut_stats[shortcut] = questions.count(shortcut)
         return jsonify({
@@ -219,12 +231,14 @@ def generate_report():
         print(f"Error generating report: {e}")
         return jsonify({"status": "error", "message": "Erreur lors de la génération du rapport."}), 500
 
+
 @app.route('/embeddings-metrics')
 def embeddings_metrics():
     try:
         test_questions = []
         if os.path.exists('data/test_questions.csv'):
-            test_questions = pd.read_csv('data/test_questions.csv', encoding='utf-8')['question'].tolist()
+            test_questions = pd.read_csv(
+                'data/test_questions.csv', encoding='utf-8')['question'].tolist()
 
         if not test_questions:
             test_questions = [
@@ -253,15 +267,18 @@ def embeddings_metrics():
             result = {
                 'question': question,
                 'tfidf': {'response': responses[tfidf_best_idx], 'similarity': float(tfidf_similarity)},
-                'word2vec': {'response': responses[w2v_idx], 'similarity': float(w2v_sim)},  # Convertir
-                'fasttext': {'response': responses[ft_idx], 'similarity': float(ft_sim)},  # Convertir
-                'ensemble': {'response': responses[ens_idx], 'similarity': float(ens_sim)},  
+                # Convertir
+                'word2vec': {'response': responses[w2v_idx], 'similarity': float(w2v_sim)},
+                # Convertir
+                'fasttext': {'response': responses[ft_idx], 'similarity': float(ft_sim)},
+                'ensemble': {'response': responses[ens_idx], 'similarity': float(ens_sim)},
             }
             results.append(result)
 
         methods = ['tfidf', 'word2vec', 'fasttext', 'ensemble']
         # similarities = [[r[m]['similarity'] for r in results] for m in methods]
-        similarities = [[float(r[m]['similarity']) for r in results] for m in methods]  # Convertir toutes les similarités
+        similarities = [[float(r[m]['similarity']) for r in results]
+                        for m in methods]  # Convertir toutes les similarités
         method_counts = {}
         for r in results:
             best_method = max(methods, key=lambda m: r[m]['similarity'])
@@ -275,6 +292,7 @@ def embeddings_metrics():
     except Exception as e:
         print(f"Error generating embeddings metrics: {e}")
         return jsonify({"status": "error", "message": "Erreur lors de la génération des métriques d'embeddings."}), 500
+
 
 @app.route('/new_chat', methods=['POST'])
 def new_chat():
@@ -292,6 +310,7 @@ def new_chat():
         print(f"Error creating new chat: {e}")
         return jsonify({"status": "error", "message": "Erreur lors de la création d'une nouvelle session."}), 500
 
+
 @app.route('/delete_chat', methods=['POST'])
 def delete_chat():
     try:
@@ -300,12 +319,14 @@ def delete_chat():
         if not session_id:
             return jsonify({"status": "error", "message": "session_id manquant."}), 400
         sessions = load_chat_sessions()
-        sessions = [session for session in sessions if session['id'] != int(session_id)]
+        sessions = [
+            session for session in sessions if session['id'] != int(session_id)]
         save_chat_sessions(sessions)
         return jsonify({"status": "success"})
     except Exception as e:
         print(f"Error deleting chat: {e}")
         return jsonify({"status": "error", "message": "Erreur lors de la suppression de la session."}), 500
+
 
 @app.route('/get_sessions', methods=['GET'])
 def get_sessions():
@@ -315,7 +336,6 @@ def get_sessions():
     except Exception as e:
         print(f"Error getting sessions: {e}")
         return jsonify({"status": "error", "message": "Erreur lors de la récupération des sessions."}), 500
-
 
 
 @app.route('/api/self-learning/status', methods=['GET'])
@@ -330,6 +350,7 @@ def self_learning_status():
         print(f"Error getting self-learning status: {e}")
         return jsonify({"status": "error", "message": "Erreur lors de l'obtention du statut d'apprentissage."}), 500
 
+
 @app.route('/api/self-learning/candidates', methods=['GET'])
 def get_candidates():
     """
@@ -340,20 +361,22 @@ def get_candidates():
         candidates = get_well_rated_questions(limit=10)
         print(f"Nombre de candidates récupérées: {len(candidates)}")
         print(f"Candidates:\n{candidates}")
-        
+
         if candidates.empty:
             return jsonify({"status": "info", "message": "Aucune question bien notée n'est disponible pour l'intégration.", "candidates": []})
-            
+
         # Charger les questions existantes pour vérifier les doublons
         questions, _, urls, _ = load_data()
-        
+
         # Vérifier les doublons
-        non_duplicate_indices = check_for_duplicates(candidates['question'].tolist(), questions)
-        filtered_candidates = candidates.iloc[non_duplicate_indices].reset_index(drop=True)
-        
+        non_duplicate_indices = check_for_duplicates(
+            candidates['question'].tolist(), questions)
+        filtered_candidates = candidates.iloc[non_duplicate_indices].reset_index(
+            drop=True)
+
         if filtered_candidates.empty:
             return jsonify({"status": "info", "message": "Toutes les questions bien notées sont déjà présentes dans la base de données.", "candidates": []})
-            
+
         # Prédire les catégories pour chaque question
         categories = []
         confidences = []
@@ -361,23 +384,36 @@ def get_candidates():
             category, confidence = predict_category(question)
             categories.append(category)
             confidences.append(float(confidence))
-            
+
         # Ajouter les catégories prédites et les URL (vides pour l'instant)
         filtered_candidates['category'] = categories
         filtered_candidates['confidence'] = confidences
         filtered_candidates['url'] = '/auto-learning'  # URL par défaut
-        
+
         # Convertir à JSON et renvoyer
         candidates_json = filtered_candidates.to_dict(orient='records')
         return jsonify({
-            "status": "success", 
+            "status": "success",
             "candidates": candidates_json,
             "total": len(candidates_json)
         })
-        
+
     except Exception as e:
         print(f"Error getting self-learning candidates: {e}")
         return jsonify({"status": "error", "message": f"Erreur lors de la récupération des candidats: {str(e)}"}), 500
+
+
+@app.route('/api/download/<filename>', methods=['GET'])
+def download_file(filename):
+    try:
+        files_dir = os.path.join(os.path.dirname(__file__), 'files')
+        if not os.path.exists(os.path.join(files_dir, filename)):
+            return jsonify({"status": "error", "message": "Fichier non trouvé."}), 404
+        return send_from_directory(files_dir, filename, as_attachment=True)
+    except Exception as e:
+        print(f"Error downloading file: {e}")
+        return jsonify({"status": "error", "message": "Erreur lors du téléchargement du fichier."}), 500
+
 
 @app.route('/api/self-learning/integrate', methods=['POST'])
 def integrate_candidates_endpoint():
@@ -413,7 +449,8 @@ def integrate_candidates_endpoint():
     except Exception as e:
         print(f"Erreur lors de l'intégration: {e}")
         return jsonify({"status": "error", "message": f"Erreur: {str(e)}"}), 500
-    
+
+
 if __name__ == '__main__':
     port = int(os.getenv('PORT', 5000))
     app.run(host='0.0.0.0', port=port)

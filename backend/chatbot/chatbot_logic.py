@@ -11,6 +11,7 @@ from langdetect import detect, DetectorFactory
 # Assurer la reproductibilité de la détection de langue
 DetectorFactory.seed = 0
 
+
 def search_in_index(query):
     try:
         with ix.searcher() as searcher:
@@ -21,9 +22,11 @@ def search_in_index(query):
         print(f"Error searching in index: {e}")
         return None
 
+
 def get_shortcut_url(shortcut):
     path = shortcut_urls.get(shortcut)
     return f"https://isetsf.rnu.tn{path}" if path else None
+
 
 def get_suggestions(user_input):
     """Generate proactive suggestions based on the context of the input."""
@@ -36,10 +39,15 @@ def get_suggestions(user_input):
     if 'inscription' in processed_input or 'nouvelle année' in processed_input:
         suggestions.append({"text": "/inscription", "label": "📝 Inscription"})
     if 'bibliothèque' in processed_input or 'livre' in processed_input:
-        suggestions.append({"text": "/bibliotheque", "label": "📚 Bibliothèque"})
+        suggestions.append(
+            {"text": "/bibliotheque", "label": "📚 Bibliothèque"})
     if 'examen' in processed_input or 'résultat' in processed_input:
         suggestions.append({"text": "/examens", "label": "📖 Examens"})
     return suggestions
+    if 'attestation' in processed_input or 'certificat' in processed_input:
+        suggestions.append({"text": "/attestation", "label": "📄 Attestation"})
+    return suggestions
+
 
 def get_response(user_input, input_source='text'):
     print(f"Processing input from {input_source}: {user_input}")
@@ -50,7 +58,18 @@ def get_response(user_input, input_source='text'):
             language = 'fr'  # Par défaut français
     except Exception:
         language = 'fr'  # Secours si langdetect échoue
-
+        
+    # Vérifier si le mot "attestation" est dans l'entrée
+    if 'attestation' in user_input.lower():
+        return {
+            "answer": "Vous avez demandé une attestation. Téléchargez le fichier attestation.pdf ici.",
+            "url": "/api/download/attestation.pdf",
+            "similarity": 1.0,
+            "category": "attestation",
+            "is_shortcut": False,
+            "method": "keyword_match",
+            "suggestions": []
+        }
     # Check for shortcuts
     if user_input.startswith('/'):
         if user_input in shortcuts:
@@ -71,22 +90,23 @@ def get_response(user_input, input_source='text'):
             "suggestions": []
         }
 
-    processed_input = preprocess_text(user_input, language, is_voice=input_source == 'voice')
+    processed_input = preprocess_text(
+        user_input, language, is_voice=input_source == 'voice')
     input_tfidf = vectorizer.transform([processed_input])
-    
+
     # Try TF-IDF (threshold: 0.65, adjust if too strict)
     similarities = cosine_similarity(input_tfidf, tfidf_matrix)
     best_match_idx = similarities.argmax()
     max_similarity = similarities[0, best_match_idx]
-    
+
     # Category prediction using Naive Bayes and KNN
     category_tfidf = nb_classifier.predict(input_tfidf)[0]
     input_dense = input_tfidf.toarray()
     category_knn = knn_classifier.predict(input_dense)[0]
-    
+
     # Generate suggestions for non-shortcut inputs
     suggestions = get_suggestions(user_input)
-    
+
     if max_similarity > 0.65:
         return {
             "answer": responses[best_match_idx],
@@ -97,7 +117,7 @@ def get_response(user_input, input_source='text'):
             "method": "tfidf",
             "suggestions": suggestions
         }
-    
+
     # Try Word2Vec (threshold: 0.8, adjust if needed)
     w2v_idx, w2v_sim = get_best_match_with_word2vec(user_input, language)
     if w2v_sim > 0.8:
@@ -110,7 +130,7 @@ def get_response(user_input, input_source='text'):
             "method": "word2vec",
             "suggestions": suggestions
         }
-    
+
     # Try FastText (threshold: 0.8)
     ft_idx, ft_sim = get_best_match_with_fasttext(user_input, language)
     if ft_sim > 0.8:
@@ -123,7 +143,7 @@ def get_response(user_input, input_source='text'):
             "method": "fasttext",
             "suggestions": suggestions
         }
-    
+
     # Try ensemble (threshold: 0.7)
     ens_idx, ens_sim = ensemble_similarity(user_input, language)
     if ens_sim > 0.7:
@@ -136,7 +156,7 @@ def get_response(user_input, input_source='text'):
             "method": "ensemble",
             "suggestions": suggestions
         }
-    
+
     # Fall back to KNN (distance threshold: 0.7)
     distances, indices = knn_classifier.kneighbors(input_dense, n_neighbors=1)
     if distances[0][0] < 0.7:
@@ -150,7 +170,7 @@ def get_response(user_input, input_source='text'):
             "method": "knn",
             "suggestions": suggestions
         }
-    
+
     # Last resort: Whoosh search
     search_result = search_in_index(user_input)
     if search_result:
@@ -163,7 +183,7 @@ def get_response(user_input, input_source='text'):
             "method": "index_search",
             "suggestions": suggestions
         }
-    
+
     # No match found
     return {
         "answer": "Désolé, je n'ai pas compris.",
@@ -174,6 +194,7 @@ def get_response(user_input, input_source='text'):
         "method": "no_match",
         "suggestions": suggestions
     }
+
 
 def save_new_question(user_input, response, rating=None):
     try:

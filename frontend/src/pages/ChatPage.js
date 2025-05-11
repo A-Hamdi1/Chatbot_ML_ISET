@@ -22,6 +22,7 @@ import {
   Mic,
   MicOff,
   InsertEmoticon,
+  Download,
   AttachFile,
   AccessTime,
   Phone,
@@ -55,11 +56,14 @@ function ChatPage({ sessions, setSessions }) {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/chat`, {
-        message: input,
-        session_id: sessionId,
-        source: "text",
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/chat`,
+        {
+          message: input,
+          session_id: sessionId,
+          source: "text",
+        }
+      );
       const updatedMessages = [...messages, response.data.chat_entry];
       setMessages(updatedMessages);
       setSessionId(response.data.session_id);
@@ -100,11 +104,14 @@ function ChatPage({ sessions, setSessions }) {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/chat`, {
-        message: voiceInput,
-        session_id: sessionId,
-        source: "voice",
-      });
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/chat`,
+        {
+          message: voiceInput,
+          session_id: sessionId,
+          source: "voice",
+        }
+      );
       const updatedMessages = [...messages, response.data.chat_entry];
       setMessages(updatedMessages);
       setSessionId(response.data.session_id);
@@ -176,7 +183,8 @@ function ChatPage({ sessions, setSessions }) {
           session_id: sessionId || null,
           source: "shortcut",
         };
-        const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/chat`,
+        const response = await axios.post(
+          `${process.env.REACT_APP_API_URL}/api/chat`,
           payload
         );
         const { chat_entry, session_id } = response.data;
@@ -331,7 +339,25 @@ function ChatPage({ sessions, setSessions }) {
       minute: "2-digit",
     });
   };
-
+  const handleDownload = async (url, filename = "attestation.pdf") => {
+    try {
+      const response = await axios.get(url, { responseType: "blob" });
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(blob);
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(link.href);
+      setSnackbarMessage("Téléchargement démarré !");
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      setSnackbarMessage("Erreur lors du téléchargement du fichier");
+      setSnackbarOpen(true);
+    }
+  };
   return (
     <Box
       sx={{
@@ -456,16 +482,32 @@ function ChatPage({ sessions, setSessions }) {
                           {msg.bot.answer}
                         </Typography>
                         {msg.bot.url && (
-                          <Typography>
-                            <a
-                              href={msg.bot.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{ color: "#FF6F61" }}
-                            >
-                              En savoir plus
-                            </a>
-                          </Typography>
+                          <Box sx={{ mt: 1 }}>
+                            {msg.bot.url.includes("/api/download/") ? (
+                              <Button
+                                variant="contained"
+                                color="primary"
+                                startIcon={<Download />}
+                                onClick={() =>
+                                  handleDownload(msg.bot.url, "attestation.pdf")
+                                }
+                                sx={{ borderRadius: "16px" }}
+                              >
+                                Télécharger
+                              </Button>
+                            ) : (
+                              <Typography>
+                                <a
+                                  href={msg.bot.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{ color: "#FF6F61" }}
+                                >
+                                  En savoir plus
+                                </a>
+                              </Typography>
+                            )}
+                          </Box>
                         )}
                         {msg.bot.method && (
                           <Typography
@@ -661,6 +703,27 @@ function ChatPage({ sessions, setSessions }) {
                 startIcon={<Book />}
               >
                 Examens
+              </Button>
+            </Grid>
+            <Grid item xs={2}>
+              <Button
+                variant="contained"
+                onClick={() => sendShortcut("/attestation")}
+                sx={{
+                  borderRadius: "20px",
+                  bgcolor: "error.main",
+                  color: "white",
+                  px: 3,
+                  py: 1.5,
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                  "&:hover": { bgcolor: "error.dark" },
+                }}
+                startIcon={<Download />}
+              >
+                Attestation
               </Button>
             </Grid>
           </Grid>
