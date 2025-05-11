@@ -13,6 +13,8 @@ import {
   CircularProgress,
   Button,
   Grid,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import {
   Send,
@@ -24,10 +26,13 @@ import {
   InsertEmoticon,
   Download,
   AttachFile,
+  Assignment,
   AccessTime,
   Phone,
   Description,
+  ArrowDropUp,
   LocalLibrary,
+  Grade,
   Book,
 } from "@mui/icons-material";
 
@@ -339,9 +344,19 @@ function ChatPage({ sessions, setSessions }) {
       minute: "2-digit",
     });
   };
-  const handleDownload = async (url, filename = "attestation.pdf") => {
+  const handleDownload = async (url, filename) => {
+    const apiBaseUrl = process.env.REACT_APP_API_URL || "http://localhost:5000";
+    let normalizedUrl = url;
+    if (normalizedUrl.includes("http")) {
+      const path = normalizedUrl.split("/api/download/")[1];
+      normalizedUrl = `${apiBaseUrl}/api/download/${path}`;
+    } else {
+      normalizedUrl = `${apiBaseUrl}${url}`;
+    }
+
+    console.log(`Downloading URL: ${normalizedUrl}, Filename: ${filename}`);
     try {
-      const response = await axios.get(url, { responseType: "blob" });
+      const response = await axios.get(normalizedUrl, { responseType: "blob" });
       const blob = new Blob([response.data], { type: "application/pdf" });
       const link = document.createElement("a");
       link.href = window.URL.createObjectURL(blob);
@@ -354,9 +369,25 @@ function ChatPage({ sessions, setSessions }) {
       setSnackbarOpen(true);
     } catch (error) {
       console.error("Error downloading file:", error);
-      setSnackbarMessage("Erreur lors du téléchargement du fichier");
+      if (error.response && error.response.status === 404) {
+        setSnackbarMessage(`Fichier ${filename} introuvable.`);
+      } else {
+        setSnackbarMessage("Erreur lors du téléchargement du fichier.");
+      }
       setSnackbarOpen(true);
     }
+  };
+  // État pour gérer l'ouverture du menu déroulant
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  // Fonctions pour ouvrir et fermer le menu
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
   };
   return (
     <Box
@@ -488,9 +519,16 @@ function ChatPage({ sessions, setSessions }) {
                                 variant="contained"
                                 color="primary"
                                 startIcon={<Download />}
-                                onClick={() =>
-                                  handleDownload(msg.bot.url, "attestation.pdf")
-                                }
+                                onClick={() => {
+                                  const rawFilename = decodeURIComponent(
+                                    msg.bot.url.split("/").pop()
+                                  );
+                                  const filename = rawFilename.replace(
+                                    /\s+/g,
+                                    "_"
+                                  );
+                                  handleDownload(msg.bot.url, filename);
+                                }}
                                 sx={{ borderRadius: "16px" }}
                               >
                                 Télécharger
@@ -599,7 +637,7 @@ function ChatPage({ sessions, setSessions }) {
             width: "100%",
           }}
         >
-          <Grid container spacing={1} sx={{ maxWidth: "1000px" }}>
+          <Grid container spacing={1} sx={{ maxWidth: "1200px" }}>
             <Grid item xs>
               <Button
                 variant="contained"
@@ -705,10 +743,10 @@ function ChatPage({ sessions, setSessions }) {
                 Examens
               </Button>
             </Grid>
-            <Grid item xs={2}>
+            <Grid item xs>
               <Button
                 variant="contained"
-                onClick={() => sendShortcut("/attestation")}
+                onClick={handleMenuOpen} // Ouvre le menu déroulant
                 sx={{
                   borderRadius: "20px",
                   bgcolor: "error.main",
@@ -722,9 +760,60 @@ function ChatPage({ sessions, setSessions }) {
                   "&:hover": { bgcolor: "error.dark" },
                 }}
                 startIcon={<Download />}
+                endIcon={<ArrowDropUp />} // Icône pour indiquer que le menu s'ouvre vers le haut
               >
-                Attestation
+                Attestations
               </Button>
+              <Menu
+                anchorEl={anchorEl}
+                open={open}
+                onClose={handleMenuClose}
+                anchorOrigin={{
+                  vertical: "top", // Ancrer le menu au-dessus du bouton
+                  horizontal: "center",
+                }}
+                transformOrigin={{
+                  vertical: "bottom", // Origine de transformation en bas du menu
+                  horizontal: "center",
+                }}
+                PaperProps={{
+                  sx: {
+                    borderRadius: "16px",
+                    boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                  },
+                }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    sendShortcut("/attestation_presence");
+                    handleMenuClose();
+                  }}
+                  sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                >
+                  <Download sx={{ fontSize: 20 }} />
+                  Attestation de présence
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    sendShortcut("/attestation_stage");
+                    handleMenuClose();
+                  }}
+                  sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                >
+                  <Assignment sx={{ fontSize: 20 }} />
+                  Attestation Stage
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    sendShortcut("/releve_de_note");
+                    handleMenuClose();
+                  }}
+                  sx={{ display: "flex", alignItems: "center", gap: 1 }}
+                >
+                  <Grade sx={{ fontSize: 20 }} />
+                  Relevé de Notes
+                </MenuItem>
+              </Menu>
             </Grid>
           </Grid>
         </Box>

@@ -43,52 +43,88 @@ def get_suggestions(user_input):
             {"text": "/bibliotheque", "label": "📚 Bibliothèque"})
     if 'examen' in processed_input or 'résultat' in processed_input:
         suggestions.append({"text": "/examens", "label": "📖 Examens"})
-    return suggestions
-    if 'attestation' in processed_input or 'certificat' in processed_input:
-        suggestions.append({"text": "/attestation", "label": "📄 Attestation"})
+    if 'attestation presence' in processed_input or 'certificate of attendance' in processed_input:
+        suggestions.append({"text": "/attestation_presence", "label": "📄 Attestation de présence"})
+    if 'attestation stage' in processed_input or 'internship certificat' in processed_input:
+        suggestions.append({"text": "/attestation_stage", "label": "📄 Attestation de stage"})
+    if 'releve de note' in processed_input or 'academic transcript' in processed_input:
+        suggestions.append({"text": "/releve_de_note", "label": "📄 Releve de note"})
     return suggestions
 
 
 def get_response(user_input, input_source='text'):
     print(f"Processing input from {input_source}: {user_input}")
-    # Détecter automatiquement la langue
     try:
         language = detect(user_input)
         if language not in ['fr', 'en']:
             language = 'fr'  # Par défaut français
     except Exception:
         language = 'fr'  # Secours si langdetect échoue
-        
-    # Vérifier si le mot "attestation" est dans l'entrée
-    if 'attestation' in user_input.lower():
-        return {
-            "answer": "Vous avez demandé une attestation. Téléchargez le fichier attestation.pdf ici.",
-            "url": "/api/download/attestation.pdf",
+    user_input_lower = user_input.lower()
+    if 'attestation presence' in user_input_lower and 'certificate of attendance' not in user_input_lower:
+        response = {
+            "answer": "Vous avez demandé une attestation de presence. Téléchargez le fichier attestation_presence.pdf ici.",
+            "url": "/api/download/attestation_presence.pdf",
             "similarity": 1.0,
-            "category": "attestation",
+            "category": "attestation_presence",
             "is_shortcut": False,
             "method": "keyword_match",
             "suggestions": []
         }
+        print(f"Returning response for 'attestation de presence': {response['url']}")
+        return response
+    elif 'attestation stage' in user_input_lower or 'internship certificat' in user_input_lower:
+        response = {
+            "answer": "Vous avez demandé une attestation de stage. Téléchargez le fichier attestation_stage.pdf ici.",
+            "url": "/api/download/attestation_stage.pdf",
+            "similarity": 1.0,
+            "category": "attestation_stage",
+            "is_shortcut": False,
+            "method": "keyword_match",
+            "suggestions": []
+        }
+        print(f"Returning response for 'attestation_stage': {response['url']}")
+        return response
+    elif 'releve de note' in user_input_lower or 'academic transcript' in user_input_lower:
+        response = {
+            "answer": "Vous avez demandé un relevé de notes. Téléchargez le fichier releve_de_note.pdf ici.",
+            "url": "/api/download/releve_de_note.pdf",
+            "similarity": 1.0,
+            "category": "releve_de_note",
+            "is_shortcut": False,
+            "method": "keyword_match",
+            "suggestions": []
+        }
+        print(f"Returning response for 'releve_de_note': {response['url']}")
+        return response
+
     # Check for shortcuts
     if user_input.startswith('/'):
         if user_input in shortcuts:
-            return {
+            response = {
                 "answer": shortcuts[user_input],
                 "url": get_shortcut_url(user_input),
                 "similarity": 1.0,
                 "category": "shortcut",
                 "is_shortcut": True,
+                "method": "shortcut",
                 "suggestions": []
             }
-        return {
+            print(
+                f"Returning shortcut response for {user_input}: {response['url']}")
+            return response
+        response = {
             "answer": "Commande inconnue. Tapez /help pour la liste.",
             "url": None,
             "similarity": 0.0,
             "category": "shortcut",
             "is_shortcut": True,
+            "method": "shortcut",
             "suggestions": []
         }
+        print(
+            f"Returning unknown shortcut response for {user_input}: {response['url']}")
+        return response
 
     processed_input = preprocess_text(
         user_input, language, is_voice=input_source == 'voice')

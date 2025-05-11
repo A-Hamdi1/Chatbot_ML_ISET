@@ -1,6 +1,7 @@
 from http.client import responses as http_responses
 import os
 import re
+from urllib.parse import unquote
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from waitress import serve
@@ -407,8 +408,12 @@ def get_candidates():
 def download_file(filename):
     try:
         files_dir = os.path.join(os.path.dirname(__file__), 'files')
-        if not os.path.exists(os.path.join(files_dir, filename)):
-            return jsonify({"status": "error", "message": "Fichier non trouvé."}), 404
+        filename = unquote(filename)
+        file_path = os.path.join(files_dir, filename)
+        print(f"Requested file: {filename}, Path: {file_path}, Exists: {os.path.exists(file_path)}")
+        print(f"Files in directory: {os.listdir(files_dir)}")
+        if not os.path.exists(file_path):
+            return jsonify({"status": "error", "message": f"Fichier {filename} non trouvé."}), 404
         return send_from_directory(files_dir, filename, as_attachment=True)
     except Exception as e:
         print(f"Error downloading file: {e}")
