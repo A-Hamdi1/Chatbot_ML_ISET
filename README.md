@@ -167,9 +167,6 @@ Les contributions sont les bienvenues ! Voici comment contribuer :
 4. 📤 Poussez vers la branche (`git push origin feature/AmazingFeature`)
 5. 🔃 Ouvrez une Pull Request
 
-## 📜 Licence
-
-Distribué sous la licence MIT. Voir `LICENSE` pour plus d'informations.
 
 ## 📞 Contact
 
